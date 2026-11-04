@@ -27,6 +27,15 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
+
+# Import auth module
+try:
+    from auth import setup_auth_routes
+    AUTH_ENABLED = True
+except ImportError:
+    AUTH_ENABLED = False
+    print("Warning: auth.py not found, OAuth disabled")
 
 # C++ ядро (Этап 3)
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "core", "build"))
@@ -65,6 +74,11 @@ app = FastAPI(
     redoc_url=None,
     openapi_url="/openapi.json",
 )
+
+# Session middleware for OAuth
+SESSION_SECRET = os.environ.get("SESSION_SECRET", os.urandom(32).hex())
+app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET)
+
 # CORS: статическая витрина может жить на GitHub Pages и обращаться к шлюзу.
 app.add_middleware(
     CORSMiddleware,
@@ -469,3 +483,11 @@ if WEB.exists():
                 return FileResponse(WEB / f"{page}.html")
             return _handler
         app.get(f"/{_page}.html", include_in_schema=False)(_make_html(_page))
+
+
+# ---------- OAuth Authentication (Этап 8) -------------------------------------
+if AUTH_ENABLED:
+    setup_auth_routes(app)
+    print("✓ OAuth authentication enabled (Google, GitHub)")
+else:
+    print("⚠ OAuth authentication disabled (auth.py not found or dependencies missing)")
