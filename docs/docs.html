@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Squeeze Gateway — документация</title>
+  <meta name="description" content="Как Squeeze Gateway экономит токены: пайплайн, модули, API и ответы на вопросы.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="docs">
+
+<header class="topbar">
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SQ</span>
+    <span>
+      <span class="brand-name">Squeeze Gateway</span><br>
+      <span class="brand-sub">LLM token optimizer</span>
+    </span>
+    <span class="version-chip">v0.3</span>
+  </a>
+  <nav class="nav">
+    <a href="index.html" data-page="dashboard">Дашборд</a>
+    <a href="playground.html" data-page="playground">Playground</a>
+    <a href="docs.html" data-page="docs">Документация</a>
+    <a href="project.html" data-page="project">Проект</a>
+  </nav>
+  <span class="spacer"></span>
+  <span class="status-pill" id="gw-status"><span class="beacon pulse"></span>проверка…</span>
+</header>
+
+<main class="page stack">
+
+  <section class="hero">
+    <div class="eyebrow">Documentation</div>
+    <h1>Как шлюз экономит токены</h1>
+    <p class="lead">
+      Три независимых механизма. Все цифры — из живых замеров на gemini-3.6-flash
+      (октябрь 2026); методика воспроизводится командами из раздела «Проверка».
+    </p>
+  </section>
+
+  <!-- пайплайн -->
+  <section>
+    <div class="section-head"><div><h2>Пайплайн запроса</h2><p>Что происходит между вашим приложением и моделью</p></div></div>
+    <div class="grid-2">
+      <div class="card hoverable">
+        <div class="card-head"><h3>1 · Приём и замер baseline</h3><span class="chip">countTokens</span></div>
+        <p class="dim" style="font-size:13.5px">Шлюз принимает запрос в формате Gemini API и спрашивает у провайдера, сколько токенов потребовал бы оригинальный промпт. Это опорная точка всей экономии — без неё любые «мы сэкономили» были бы маркетингом.</p>
+      </div>
+      <div class="card hoverable">
+        <div class="card-head"><h3>2 · Сжатие ввода</h3><span class="chip green">−5…36%</span></div>
+        <p class="dim" style="font-size:13.5px">C++ ядро снимает вежливость и канцелярит, дедуплицирует повторяющиеся строки. На плотных технических промптах — почти ничего не трогает: приоритет «не навредить» выше экономии.</p>
+      </div>
+      <div class="card hoverable">
+        <div class="card-head"><h3>3 · Глубина мышления</h3><span class="chip amber">−46% на простых</span></div>
+        <p class="dim" style="font-size:13.5px">Классификатор по маркерам сложности решает, можно ли понизить thinking-уровень. «Что такое / переведи / кратко» → LOW, «объясни / докажи / реши» → MEDIUM. Явный выбор клиента всегда уважается.</p>
+      </div>
+      <div class="card hoverable">
+        <div class="card-head"><h3>4 · Отправка и учёт</h3><span class="chip cyan">baseline − факт − aux</span></div>
+        <p class="dim" style="font-size:13.5px">Запрос уходит провайдеру с ретраями на 503 и понятной ошибкой на 429. Каждый запрос пишется в JSONL: ввод, мысли, ответ, латентность и служебный расход шлюза.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- модули -->
+  <section>
+    <div class="section-head"><div><h2>Модули и замеренный эффект</h2><p>Честные диапазоны, а не верхняя оценка</p></div></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>C++ компрессор</h3><span class="chip green">замерено до −36%</span></div>
+        <div class="kv"><span>Болтливый промпт</span><span>63 → 41 токен</span></div>
+        <div class="kv"><span>Плотная задача</span><span>84 → 79 токенов</span></div>
+        <div class="kv"><span>Чистый промпт</span><span>без изменений</span></div>
+        <div class="kv"><span>Стоимость</span><span>0 токенов, микросекунды</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Контроллер мышления</h3><span class="chip amber">замерено −46%</span></div>
+        <div class="kv"><span>Простой вопрос, default</span><span>918 токенов</span></div>
+        <div class="kv"><span>Простой вопрос, LOW</span><span>493 токена · 6.1 с</span></div>
+        <div class="kv"><span>Сложный вопрос, MEDIUM</span><span>2630 токенов</span></div>
+        <div class="kv"><span>Сложный вопрос, LOW</span><span>2341 токен (−11%)</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>LLM-сжатие</h3><span class="chip">порог 2000 симв.</span></div>
+        <p class="dim" style="font-size:13px; margin-bottom:10px">Мини-модель переписывает длинный промпт, сохраняя факты и требования. На коротких промптах убыточно: компрессор сам стоит ~300 aux-токенов. Поэтому — порог окупаемости.</p>
+        <div class="kv"><span>Короткий промпт</span><span>63 → 41, aux 333 → нетто минус</span></div>
+        <div class="kv"><span>Решение</span><span>включать только ≥ 2000 символов</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Надёжность</h3><span class="chip cyan">503 / 429</span></div>
+        <div class="kv"><span>503 «high demand»</span><span>3 ретрая: 1 / 2 / 4 с</span></div>
+        <div class="kv"><span>429 «квота»</span><span>сразу понятная ошибка</span></div>
+        <div class="kv"><span>Пустое сжатие</span><span>откат на оригинал</span></div>
+        <div class="kv"><span>Выбор клиента</span><span>не переопределяется</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- API -->
+  <section>
+    <div class="section-head"><div><h2>API</h2><p>Формат Gemini generateContent; query-параметры включают оптимизации</p></div></div>
+    <div class="card" style="padding:0; overflow:hidden">
+      <table>
+        <thead><tr><th>Метод</th><th>Эндпоинт</th><th>Назначение</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">POST</td><td class="mono">/v1beta/models/{model}:generateContent</td><td>Основной прокси с оптимизацией (<span class="mono">?squeeze=</span>, <span class="mono">?thinking=</span>)</td></tr>
+          <tr><td class="mono">GET</td><td class="mono">/health</td><td>Статус и наличие ключа</td></tr>
+          <tr><td class="mono">GET</td><td class="mono">/stats</td><td>Суммарная сводка: запросы, baseline, aux, нетто-экономия</td></tr>
+          <tr><td class="mono">GET</td><td class="mono">/metrics?limit=12</td><td>Последние записи журнала для интерфейса</td></tr>
+          <tr><td class="mono">GET</td><td class="mono">/api/summary</td><td>Единая сводка для дашборда</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- интеграция -->
+  <section>
+    <div class="section-head"><div><h2>Интеграция</h2><p>Замените базовый URL — остальной код не меняется</p></div></div>
+    <div class="card">
+      <div class="seg" data-tabs style="margin-bottom:12px">
+        <button class="active" data-lang="curl" type="button">cURL</button>
+        <button data-lang="python" type="button">Python</button>
+        <button data-lang="js" type="button">JavaScript</button>
+      </div>
+
+      <div data-pane="curl">
+        <div class="code"><button class="copy-btn">копировать</button><pre><code><span class="c"># эвристика + авто-глубина мышления</span>
+curl -X POST <span class="s">"http://localhost:8082/v1beta/models/gemini-3.6-flash:generateContent?squeeze=1&amp;thinking=auto"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"contents":[{"role":"user","parts":[{"text":"Что такое FFT? Кратко."}]}]}'</span></code></pre></div>
+      </div>
+
+      <div data-pane="python" class="hidden">
+        <div class="code"><button class="copy-btn">копировать</button><pre><code><span class="k">import</span> httpx
+
+url = (<span class="s">"http://localhost:8082/v1beta/models/"</span>
+       <span class="s">"gemini-3.6-flash:generateContent?squeeze=1&amp;thinking=auto"</span>)
+r = httpx.post(url, json={<span class="s">"contents"</span>: [{
+    <span class="s">"role"</span>: <span class="s">"user"</span>,
+    <span class="s">"parts"</span>: [{<span class="s">"text"</span>: <span class="s">"Что такое FFT? Кратко."</span>}],
+}]}, timeout=<span class="v">120</span>)
+print(r.json()[<span class="s">"candidates"</span>][<span class="v">0</span>][<span class="s">"content"</span>][<span class="s">"parts"</span>][<span class="v">0</span>][<span class="s">"text"</span>])</code></pre></div>
+      </div>
+
+      <div data-pane="js" class="hidden">
+        <div class="code"><button class="copy-btn">копировать</button><pre><code><span class="k">const</span> res = <span class="k">await</span> fetch(
+  <span class="s">"http://localhost:8082/v1beta/models/gemini-3.6-flash:generateContent?squeeze=1&amp;thinking=auto"</span>,
+  {
+    method: <span class="s">"POST"</span>,
+    headers: { <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span> },
+    body: JSON.stringify({ contents: [{
+      role: <span class="s">"user"</span>, parts: [{ text: <span class="s">"Что такое FFT? Кратко."</span> }],
+    }] }),
+  });
+<span class="k">const</span> data = <span class="k">await</span> res.json();</code></pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section>
+    <div class="section-head"><div><h2>Ответы на вопросы</h2><p>Коротко и без маркетинга</p></div></div>
+    <div class="accordion">
+      <details open>
+        <summary>Сколько именно экономит шлюз?</summary>
+        <div class="answer">Зависит от трафика. На простых чат-вопросах суммарно −40…60% (в основном за счёт контроля глубины мышления), на средних «объясни/почему» — 30–40%, на плотных технических задачах — 15–30% (сжатие там почти нечего даёт, а мышление мы не понижаем). На смешанном трафике реального приложения — целевые 30% достигаются с запасом. На дашборде процент ниже: он считает только вход и служебные траты на текущей выборке, без контрфактического замера thinking — эти цифры берутся из парных тестов.</div>
+      </details>
+      <details>
+        <summary>Не портит ли сжатие качество ответов?</summary>
+        <div class="answer">Это главный риск, и он ограничен тремя способами: (1) эвристика трогает только вежливость/канцелярит/повторы, но не данные; (2) на плотных промптах она сама себя останавливает (−6% или 0%); (3) LLM-сжатие включается только от 2000 символов и откатывается на эвристику при пустом результате. На тестах чистый промпт остаётся нетронутым — это отдельная проверка в журнале.</div>
+      </details>
+      <details>
+        <summary>Почему модель может «думать» меньше — это же ухудшает ответы?</summary>
+        <div class="answer">Для простых задач — нет: замер показал, что на определении квантовой запутанности LOW дал ответ того же качества за 6 секунд вместо 17 и 493 токена вместо 918. Для сложных задач (доказательства, многошаговые рассуждения) классификатор оставляет MEDIUM — понижение там вредно, и мы этого не делаем.</div>
+      </details>
+      <details>
+        <summary>Какие модели поддерживаются?</summary>
+        <div class="answer">Сегодня — Gemini 3.x (3.5 / 3.6; 3.8 работает, но бывает перегружена на стороне Google). Архитектурно шлюз проектируется как универсальный: у OpenAI и Claude аналогичные рычаги (reasoning_effort / thinking), а вход планируется в OpenAI-совместимом формате — тогда любой клиент сможет переключить base URL и получить те же оптимизации.</div>
+      </details>
+      <details>
+        <summary>Что происходит с моим ключом и данными?</summary>
+        <div class="answer">Ключ хранится только в .env на вашей машине и никогда не коммитится в репозиторий (.env в .gitignore). Запросы идут напрямую в Google, минуя сторонние серверы; журнал метрик — локальный файл logs/metrics.jsonl без текста промптов: только токены, латентность и режим.</div>
+      </details>
+      <details>
+        <summary>Почему в бесплатном режиме иногда ошибка 429?</summary>
+        <div class="answer">Это дневная квота Google на бесплатном тарифе (≈20 генераций в день на модель), а не ошибка шлюза. Ретраи при 503 тоже расходуют квоту — поэтому шлюз ретраит только перегрузку, а на 429 сразу отдаёт понятное сообщение. Для полноценных замеров нужен тариф с оплатой.</div>
+      </details>
+      <details>
+        <summary>Можно ли проверить замеры самому?</summary>
+        <div class="answer">Да. В репозитории есть tests/ (уровни мышления), CLI-клиент и журнал метрик. Любая цифра из этой страницы воспроизводится: запустите шлюз, задайте вопрос в passthrough и в оптимизированном режиме, сравните usageMetadata. Методика честная: baseline берётся у провайдера через countTokens, а не оценивается «на глаз».</div>
+      </details>
+      <details>
+        <summary>Это законно и не нарушает условия провайдеров?</summary>
+        <div class="answer">Да: шлюз использует официальный API с вашим ключом и не автоматизирует веб-интерфейсы. Официальные платформенные входы (Vertex AI / Azure OpenAI / Bedrock) — легальный путь для корпоративных аккаунтов, который мы планируем поддержать. Вход через личные веб-аккаунты ChatGPT/Claude — вне рамок проекта, так как нарушает ToS.</div>
+      </details>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>Squeeze Gateway · MIT · 2026</span>
+    <span><a href="playground.html">попробовать</a> · <a href="project.html">проект</a></span>
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Squeeze Gateway — Profile</title>
+  <meta name="description" content="User profile and settings">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/theme.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            body: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2a2c; border-radius: 4px; }
+
+    .light {
+      --primary: #2f3131;
+      --on-primary: #ffffff;
+      --background: #fafafa;
+      --on-background: #1c1b1d;
+      --surface: #ffffff;
+      --on-surface: #1c1b1d;
+      --surface-container: #f3f3f4;
+      --surface-container-low: #f7f7f8;
+      --surface-container-lowest: #ffffff;
+      --surface-container-high: #ededee;
+      --on-surface-variant: #44474a;
+      --outline: #74777a;
+    }
+  </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased" data-page="profile">
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md border-b border-surface-container-high">
+  <div class="h-16 w-full px-6 lg:px-12 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <a class="flex items-center gap-2 group" href="index.html">
+        <div class="w-7 h-7 bg-primary flex items-center justify-center text-on-primary font-bold text-sm transition-transform group-hover:scale-95">SQ</div>
+        <div class="flex flex-col">
+          <span class="font-semibold text-sm text-primary tracking-tight">Squeeze Gateway</span>
+          <span class="text-[10px] text-outline-variant font-mono uppercase tracking-wider -mt-0.5">@kirill_skoch/v0.3</span>
+        </div>
+      </a>
+      <div class="h-6 w-px bg-surface-container-high hidden xl:block"></div>
+      <nav class="hidden xl:flex items-center gap-1">
+        <a href="index.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Dashboard</a>
+        <a href="playground.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Playground</a>
+        <a href="docs.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Docs</a>
+        <a href="profile.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider bg-surface-container-high text-primary">Profile</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <button id="theme-toggle" class="px-2 py-1.5 text-xs font-mono uppercase tracking-wider text-primary hover:bg-surface-container border border-surface-container-high transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm" id="theme-icon">light_mode</span>
+        <span class="hidden sm:inline" id="theme-label">Light</span>
+      </button>
+      <button id="logout-btn" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">
+        Logout
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="w-full pt-16 bg-surface min-h-screen">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12 py-12">
+
+    <!-- Profile Header -->
+    <section class="mb-12">
+      <div class="flex items-start gap-6">
+        <div class="w-24 h-24 bg-primary rounded-lg flex items-center justify-center text-on-primary font-bold text-4xl flex-shrink-0">
+          <span id="user-initials">U</span>
+        </div>
+        <div class="flex-1">
+          <h1 class="text-3xl text-primary font-bold uppercase tracking-tight font-display mb-2">
+            <span id="user-name">User Profile</span>
+          </h1>
+          <p class="text-sm text-on-surface-variant mb-4">
+            <span id="user-email">user@example.com</span>
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 bg-surface-container-low border border-surface-container-high rounded text-xs font-mono text-on-surface-variant">
+              Member since 2026
+            </span>
+            <span class="px-3 py-1 bg-surface-container-low border border-green-500/30 rounded text-xs font-mono text-green-400">
+              Active
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Usage Statistics -->
+    <section class="mb-12">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-6">Your Statistics</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-[10px] font-mono text-outline uppercase">// Total Requests</span>
+            <span class="material-symbols-outlined text-primary text-xl">sync_alt</span>
+          </div>
+          <div class="text-3xl text-primary font-extrabold font-display" id="profile-requests">0</div>
+          <div class="text-xs font-mono text-secondary mt-2">Processed through gateway</div>
+        </div>
+
+        <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-[10px] font-mono text-outline uppercase">// Tokens Saved</span>
+            <span class="material-symbols-outlined text-primary text-xl">savings</span>
+          </div>
+          <div class="text-3xl text-primary font-extrabold font-display" id="profile-saved">0</div>
+          <div class="text-xs font-mono text-secondary mt-2">Total optimization</div>
+        </div>
+
+        <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-[10px] font-mono text-outline uppercase">// Avg Savings</span>
+            <span class="material-symbols-outlined text-primary text-xl">trending_up</span>
+          </div>
+          <div class="text-3xl text-primary font-extrabold font-display" id="profile-pct">0%</div>
+          <div class="text-xs font-mono text-secondary mt-2">Per request average</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Configuration -->
+    <section class="mb-12">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-6">API Configuration</h2>
+      <div class="bg-surface-container-low border border-surface-container-high rounded-lg p-6">
+        <form id="api-config-form" class="space-y-6">
+          <div>
+            <label class="block text-xs font-mono text-outline uppercase tracking-wider mb-2" for="gateway-url">
+              Gateway URL
+            </label>
+            <input
+              type="text"
+              id="gateway-url"
+              class="w-full bg-surface-container border border-surface-container-high rounded px-4 py-3 text-sm text-on-surface font-mono focus:outline-none focus:border-primary transition-colors"
+              placeholder="http://localhost:8082"
+            >
+            <p class="text-xs text-on-surface-variant mt-2">
+              Custom gateway endpoint (leave empty for default)
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono text-outline uppercase tracking-wider mb-2" for="api-key">
+              Gemini API Key
+            </label>
+            <input
+              type="password"
+              id="api-key"
+              class="w-full bg-surface-container border border-surface-container-high rounded px-4 py-3 text-sm text-on-surface font-mono focus:outline-none focus:border-primary transition-colors"
+              placeholder="AIza...••••"
+            >
+            <p class="text-xs text-on-surface-variant mt-2">
+              Configure in server .env file (not stored in browser)
+            </p>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <button
+              type="submit"
+              class="px-6 py-3 bg-primary text-on-primary font-semibold text-sm uppercase tracking-wider hover:bg-surface-container-highest hover:text-primary transition-all"
+            >
+              Save Changes
+            </button>
+            <button
+              type="button"
+              id="test-connection"
+              class="px-6 py-3 bg-surface-container text-on-surface hover:bg-surface-container-high border border-surface-container-high font-semibold text-sm uppercase tracking-wider transition-all"
+            >
+              Test Connection
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Preferences -->
+    <section class="mb-12">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-6">Preferences</h2>
+      <div class="bg-surface-container-low border border-surface-container-high rounded-lg p-6 space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm font-bold text-primary mb-1">Default Compression Mode</div>
+            <div class="text-xs text-on-surface-variant">Preferred optimization level for new requests</div>
+          </div>
+          <select id="pref-compression" class="bg-surface-container border border-surface-container-high rounded px-4 py-2 text-sm text-on-surface">
+            <option value="0">Passthrough</option>
+            <option value="1" selected>C++ Heuristic</option>
+            <option value="2">LLM Compression</option>
+          </select>
+        </div>
+
+        <div class="h-px bg-surface-container-high"></div>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm font-bold text-primary mb-1">Default Thinking Level</div>
+            <div class="text-xs text-on-surface-variant">Reasoning depth control</div>
+          </div>
+          <select id="pref-thinking" class="bg-surface-container border border-surface-container-high rounded px-4 py-2 text-sm text-on-surface">
+            <option value="auto" selected>Auto</option>
+            <option value="low">LOW</option>
+            <option value="medium">MEDIUM</option>
+            <option value="-">Don't interfere</option>
+          </select>
+        </div>
+
+        <div class="h-px bg-surface-container-high"></div>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm font-bold text-primary mb-1">Show Metrics in Responses</div>
+            <div class="text-xs text-on-surface-variant">Display token usage telemetry</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="pref-metrics" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+          </label>
+        </div>
+
+        <div class="h-px bg-surface-container-high"></div>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm font-bold text-primary mb-1">Email Notifications</div>
+            <div class="text-xs text-on-surface-variant">Usage reports and alerts</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="pref-emails" class="sr-only peer">
+            <div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Danger Zone -->
+    <section class="mb-12">
+      <h2 class="text-xl text-red-400 font-bold uppercase tracking-tight font-display mb-6">Danger Zone</h2>
+      <div class="bg-surface-container-low border border-red-500/30 rounded-lg p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm font-bold text-primary mb-1">Clear All Metrics</div>
+            <div class="text-xs text-on-surface-variant">Delete all request history and statistics</div>
+          </div>
+          <button class="px-4 py-2 bg-surface-container text-on-surface-variant hover:bg-red-500/20 hover:text-red-400 border border-surface-container-high hover:border-red-500/30 font-mono text-xs uppercase tracking-wider transition-all">
+            Clear Data
+          </button>
+        </div>
+
+        <div class="h-px bg-surface-container-high"></div>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm font-bold text-red-400 mb-1">Delete Account</div>
+            <div class="text-xs text-on-surface-variant">Permanently remove your account and all data</div>
+          </div>
+          <button class="px-4 py-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 font-mono text-xs uppercase tracking-wider transition-all">
+            Delete
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="w-full bg-surface-container-lowest border-t border-surface-container-high">
+  <div class="w-full px-6 lg:px-12 py-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <span class="text-xs font-mono text-on-surface-variant">Squeeze Gateway © 2026 • MIT License</span>
+      <div class="flex items-center gap-6">
+        <a href="index.html" class="text-xs font-mono text-on-surface-variant hover:text-primary transition-colors uppercase">Dashboard</a>
+        <a href="docs.html" class="text-xs font-mono text-on-surface-variant hover:text-primary transition-colors uppercase">Docs</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/app.js"></script>
+<script>
+  // Check if running on GitHub Pages
+  const isGitHubPages = location.hostname.includes('github.io');
+
+  if (isGitHubPages) {
+    // Demo mode - allow access without login
+    const demoUser = {
+      email: 'demo@squeeze-gateway.dev',
+      name: 'Demo User',
+      loggedIn: true
+    };
+    localStorage.setItem('sqg_user', JSON.stringify(demoUser));
+  }
+
+  // Check if user is logged in
+  const user = JSON.parse(localStorage.getItem('sqg_user') || '{}');
+  if (!user.loggedIn && !isGitHubPages) {
+    window.location.href = 'login.html';
+  }
+
+  // Display user info
+  document.getElementById('user-email').textContent = user.email || 'demo@squeeze-gateway.dev';
+  document.getElementById('user-name').textContent = user.name || user.email?.split('@')[0] || 'Demo User';
+  const initials = (user.email?.substring(0, 2) || 'DU').toUpperCase();
+  document.getElementById('user-initials').textContent = initials;
+
+  // Load statistics
+  if (isGitHubPages) {
+    // Demo data for GitHub Pages
+    document.getElementById('profile-requests').textContent = '1,247';
+    document.getElementById('profile-saved').textContent = '52,890';
+    document.getElementById('profile-pct').textContent = '42.3%';
+  } else {
+    fetch('/stats')
+      .then(r => r.json())
+      .then(stats => {
+        document.getElementById('profile-requests').textContent = stats.requests || 0;
+        document.getElementById('profile-saved').textContent = stats.net_tokens_saved || 0;
+        document.getElementById('profile-pct').textContent = (stats.savings_pct || 0).toFixed(1) + '%';
+      })
+      .catch(() => {});
+  }
+
+  // Load saved gateway URL
+  document.getElementById('gateway-url').value = localStorage.getItem('sqg_api') || '';
+
+  // Save API config
+  document.getElementById('api-config-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const url = document.getElementById('gateway-url').value.trim();
+    if (url) {
+      localStorage.setItem('sqg_api', url);
+    } else {
+      localStorage.removeItem('sqg_api');
+    }
+    alert('Settings saved!');
+  });
+
+  // Test connection
+  document.getElementById('test-connection').addEventListener('click', async function() {
+    try {
+      const base = localStorage.getItem('sqg_api') || '';
+      const res = await fetch((base || '') + '/health');
+      const data = await res.json();
+      alert(data.status === 'ok' ? 'Connection successful!' : 'Gateway error');
+    } catch {
+      alert('Connection failed. Check gateway URL and ensure server is running.');
+    }
+  });
+
+  // Logout
+  document.getElementById('logout-btn').addEventListener('click', async function() {
+    try {
+      // Try server logout first (for OAuth sessions)
+      await fetch('/auth/logout', { credentials: 'include' });
+    } catch (err) {
+      console.log('Server logout failed, clearing local session');
+    }
+
+    // Clear local storage
+    localStorage.removeItem('sqg_user');
+    window.location.href = 'login.html';
+  });
+
+  // Check server authentication on page load
+  async function checkServerAuth() {
+    try {
+      const response = await fetch('/auth/me', { credentials: 'include' });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.authenticated && data.user) {
+          // Update profile with server data
+          const user = data.user;
+          document.getElementById('user-email').textContent = user.email || 'N/A';
+
+          const nameEl = document.querySelector('.text-2xl.text-primary');
+          if (nameEl) {
+            nameEl.textContent = user.name || user.email.split('@')[0];
+          }
+
+          // Show OAuth provider badge
+          if (user.provider && user.provider !== 'demo') {
+            const providerBadge = document.createElement('span');
+            providerBadge.className = 'text-xs font-mono text-outline-variant uppercase px-2 py-1 bg-surface-container-high rounded';
+            providerBadge.textContent = `via ${user.provider}`;
+            nameEl.parentElement.appendChild(providerBadge);
+          }
+
+          // Store in localStorage for consistency
+          localStorage.setItem('sqg_user', JSON.stringify(user));
+          return;
+        }
+      }
+    } catch (err) {
+      console.log('Server auth check failed, using local session');
+    }
+
+    // Fallback to localStorage
+    const localUser = localStorage.getItem('sqg_user');
+    if (!localUser) {
+      window.location.href = 'login.html';
+    }
+  }
+
+  checkServerAuth();
+</script>
+</body>
+</html>

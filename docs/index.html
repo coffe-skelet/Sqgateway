@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Squeeze Gateway — дашборд</title>
+  <meta name="description" content="Squeeze Gateway — шлюз, который снижает расход токенов LLM на 30–60% без потери качества.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="dashboard">
+
+<header class="topbar">
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SQ</span>
+    <span>
+      <span class="brand-name">Squeeze Gateway</span><br>
+      <span class="brand-sub">LLM token optimizer</span>
+    </span>
+    <span class="version-chip">v0.3</span>
+  </a>
+  <nav class="nav">
+    <a href="index.html" data-page="dashboard">Дашборд</a>
+    <a href="playground.html" data-page="playground">Playground</a>
+    <a href="docs.html" data-page="docs">Документация</a>
+    <a href="project.html" data-page="project">Проект</a>
+  </nav>
+  <span class="spacer"></span>
+  <span class="status-pill" id="gw-status"><span class="beacon pulse"></span>проверка…</span>
+</header>
+
+<main class="page stack">
+
+  <!-- hero -->
+  <section class="hero">
+    <div class="eyebrow">Telemetry · real data from this gateway</div>
+    <h1>Меньше токенов — тот же результат.</h1>
+    <p class="lead">
+      Шлюз стоит между вашим приложением и LLM-провайдером и снимает «обвязку»:
+      вежливость и повторы в промптах, избыточные внутренние размышления модели.
+      Цифры ниже считаются по реальным запросам: базовый сценарий (без шлюза)
+      минус фактический расход минус служебные траты самого шлюза.
+    </p>
+    <div class="actions">
+      <a class="btn primary" href="playground.html">Открыть Playground →</a>
+      <a class="btn" href="docs.html">Как это работает</a>
+    </div>
+  </section>
+
+  <!-- офлайн-подсказка для GitHub Pages -->
+  <div class="note hidden" id="offline-note">
+    <strong>Шлюз недоступен.</strong> Этот сайт открыт как статическая витрина / с другого адреса.
+    Запустите шлюз локально командой <span class="mono">uvicorn server:app --port 8082</span>
+    или укажите его адрес в разделе <a href="project.html" style="color:var(--lilac)">Проект → Подключение</a>.
+  </div>
+
+  <!-- метрики -->
+  <section>
+    <div class="section-head">
+      <div>
+        <h2>Экономия по журналу запросов</h2>
+        <p>Всего запросов: <span class="mono" id="m-req">–</span> · средняя латентность <span class="mono" id="m-lat">–</span> c</p>
+      </div>
+      <span class="chip green" id="chip-saved">нет данных</span>
+    </div>
+    <div class="grid-4">
+      <div class="card">
+        <div class="card-head"><h3>Нетто-токены</h3><span class="chip">saved</span></div>
+        <div class="metric-value" id="m-net">–</div>
+        <div class="metric-label">сэкономлено на входе и обвязке</div>
+        <div class="metric-sub">с учётом служебного расхода шлюза (aux)</div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Экономия ввода</h3><span class="chip cyan">input</span></div>
+        <div class="metric-value" id="m-saved-pct">–</div>
+        <div class="metric-label">доля ввода, которую шлюз снял</div>
+        <div class="metric-sub">ввод факт: <span id="m-in" class="mono">–</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Размышления</h3><span class="chip amber">thinking</span></div>
+        <div class="metric-value" id="m-thought">–</div>
+        <div class="metric-label">внутренние токены модели</div>
+        <div class="metric-sub">управляются параметром ?thinking=auto</div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Ответ</h3><span class="chip dim">output</span></div>
+        <div class="metric-value" id="m-out">–</div>
+        <div class="metric-label">полезные токены ответа</div>
+        <div class="metric-sub">aux шлюза: <span id="m-aux" class="mono">–</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- последние запросы -->
+  <section class="grid-2" style="align-items:start">
+    <div class="card" style="grid-column: 1 / -1">
+      <div class="section-head" style="margin-bottom:8px">
+        <div>
+          <h2 style="font-size:16px">Последние запросы</h2>
+          <p>Свежие сверху · обновляется при открытии страницы</p>
+        </div>
+        <span class="chip dim">metrics.jsonl</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Режим</th>
+              <th class="num">ввод</th>
+              <th class="num">базовый</th>
+              <th class="num">aux</th>
+              <th class="num">saved</th>
+              <th class="num">мысли</th>
+              <th class="num">лат., с</th>
+              <th class="num">статус</th>
+            </tr>
+          </thead>
+          <tbody id="rows">
+            <tr><td colspan="7" class="empty">Загрузка…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- конфигурация -->
+  <section class="grid-2">
+    <div class="card">
+      <div class="card-head"><h3>Конфигурация шлюза</h3><span class="chip dim">локальная сессия</span></div>
+      <div class="kv"><span>Провайдер</span><span>Google Gemini API</span></div>
+      <div class="kv"><span>Upstream</span><span id="k-upstream">–</span></div>
+      <div class="kv"><span>Модель по умолчанию</span><span id="k-model">–</span></div>
+      <div class="kv"><span>Версия шлюза</span><span id="k-version">–</span></div>
+      <div class="kv"><span>API-ключ</span><span id="k-key">–</span></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Что включено</h3><span class="chip green">3 модуля</span></div>
+      <div class="bullets">
+        <div class="bullet"><strong>C++ ядро:</strong> эвристическое сжатие ввода (RU/EN) — микросекунды на запрос.</div>
+        <div class="bullet"><strong>Контроллер thinking:</strong> LOW для простых вопросов, MEDIUM для сложных.</div>
+        <div class="bullet"><strong>LLM-сжатие:</strong> подключается только для промптов ≥ 2000 символов.</div>
+      </div>
+      <div class="divider" style="margin:14px 0"></div>
+      <a class="btn small" href="docs.html">Полные детали →</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>Squeeze Gateway · MIT · 2026</span>
+    <span>шлюз: <span class="mono">localhost:8082</span> · <a href="docs.html">API</a> · <a href="project.html">проект</a></span>
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

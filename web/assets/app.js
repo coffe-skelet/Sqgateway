@@ -46,11 +46,14 @@
     const icon = $("#theme-icon");
     const label = $("#theme-label");
     const html = document.documentElement;
+    const body = document.body;
 
     function updateTheme(theme) {
       if (theme === 'light') {
         html.classList.remove('dark');
         html.classList.add('light');
+        body.classList.remove('dark');
+        body.classList.add('light');
         if (icon) icon.textContent = 'dark_mode';
         if (label) {
           label.textContent = window.i18n ? window.i18n.t('theme_dark') : 'Dark';
@@ -58,6 +61,8 @@
       } else {
         html.classList.remove('light');
         html.classList.add('dark');
+        body.classList.remove('light');
+        body.classList.add('dark');
         if (icon) icon.textContent = 'light_mode';
         if (label) {
           label.textContent = window.i18n ? window.i18n.t('theme_light') : 'Light';

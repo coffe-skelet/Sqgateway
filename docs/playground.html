@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Squeeze Gateway — Playground</title>
+  <meta name="description" content="Чат через Squeeze Gateway: сравните расход токенов в разных режимах оптимизации.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="playground">
+
+<header class="topbar">
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SQ</span>
+    <span>
+      <span class="brand-name">Squeeze Gateway</span><br>
+      <span class="brand-sub">LLM token optimizer</span>
+    </span>
+    <span class="version-chip">v0.3</span>
+  </a>
+  <nav class="nav">
+    <a href="index.html" data-page="dashboard">Дашборд</a>
+    <a href="playground.html" data-page="playground">Playground</a>
+    <a href="docs.html" data-page="docs">Документация</a>
+    <a href="project.html" data-page="project">Проект</a>
+  </nav>
+  <span class="spacer"></span>
+  <span class="status-pill" id="gw-status"><span class="beacon pulse"></span>проверка…</span>
+</header>
+
+<main class="page stack">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Live test bench</div>
+      <h1 style="font-size:26px">Playground</h1>
+      <p>Запрос идёт через шлюз: сжатие, контроль глубины мышления и честная телеметрия ответа.</p>
+    </div>
+    <button class="btn small" id="reset-chat" type="button">Очистить чат</button>
+  </div>
+
+  <div class="chat-shell">
+    <section class="card chat">
+      <div class="chat-log" id="chat-log">
+        <div class="msg bot">
+          Привет. Это живой шлюз, а не мокап: каждый ответ ниже прошёл через оптимизацию.
+          <div class="meta">
+            <span class="chip">выберите режим ниже</span>
+            <span class="chip dim">Enter — отправить</span>
+          </div>
+        </div>
+      </div>
+
+      <form class="composer" id="composer" autocomplete="off">
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <div class="field">
+            <label for="squeeze-mode">Сжатие</label>
+            <select id="squeeze-mode">
+              <option value="0">выкл — passthrough</option>
+              <option value="1" selected>эвристика C++</option>
+              <option value="2">LLM-сжатие · ≥2000 симв.</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="thinking-mode">Глубина мышления</label>
+            <select id="thinking-mode">
+              <option value="auto" selected>auto — по сложности</option>
+              <option value="low">LOW</option>
+              <option value="medium">MEDIUM</option>
+              <option value="-">не вмешиваться</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="model-select">Модель</label>
+            <select id="model-select">
+              <option value="gemini-3.6-flash" selected>gemini-3.6-flash</option>
+              <option value="gemini-3.5-flash">gemini-3.5-flash</option>
+              <option value="gemini-3.8-flash">gemini-3.8-flash · перегружена</option>
+            </select>
+          </div>
+        </div>
+        <div class="composer-row">
+          <textarea id="chat-input" placeholder="Спросите что-нибудь…"></textarea>
+          <button class="btn primary" id="send" type="submit" title="Отправить">➤</button>
+        </div>
+        <div class="composer-hint">
+          Телеметрия под ответом: ввод · мысли · ответ · время. Полная история — на дашборде.
+        </div>
+      </form>
+    </section>
+
+    <aside class="card">
+      <div class="card-head"><h3>Режимы</h3><span class="chip dim">query params</span></div>
+
+      <p class="faint" style="font-size:12px; margin-bottom:8px">Сжатие</p>
+      <div class="bullets" style="margin-bottom:14px">
+        <div class="bullet"><strong>passthrough</strong> — шлюз ничего не меняет, только считает baseline.</div>
+        <div class="bullet"><strong>C++</strong> — снимает вежливость, канцелярит, повторы; замерено до −36% ввода.</div>
+        <div class="bullet"><strong>LLM</strong> — мини-модель переписывает длинный промпт; включается от 2000 символов.</div>
+      </div>
+
+      <p class="faint" style="font-size:12px; margin-bottom:8px">Thinking</p>
+      <div class="bullets" style="margin-bottom:14px">
+        <div class="bullet"><strong>auto</strong> — классификатор: «что такое / кратко» → LOW, «объясни / докажи» → MEDIUM.</div>
+        <div class="bullet"><strong>LOW</strong> — замерено −46% токенов и −65% времени на простых вопросах.</div>
+      </div>
+
+      <div class="divider" style="margin:14px 0"></div>
+      <div class="kv"><span>Запрос</span><span>POST /v1beta/models/{model}:generateContent</span></div>
+      <div class="kv"><span>Параметры</span><span>?squeeze=0|1|2 &amp;thinking=auto|low|medium</span></div>
+      <div class="kv"><span>Формат</span><span>Gemini generateContent</span></div>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <span>Squeeze Gateway · MIT · 2026</span>
+    <span>если упирается в лимит — это квота Google, не шлюз</span>
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

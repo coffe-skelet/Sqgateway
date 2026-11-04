@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Squeeze Gateway — проект</title>
+  <meta name="description" content="Squeeze Gateway: открытый шлюз оптимизации токенов LLM. Стек, инженерные решения, ограничения и дорожная карта.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="project">
+
+<header class="topbar">
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SQ</span>
+    <span>
+      <span class="brand-name">Squeeze Gateway</span><br>
+      <span class="brand-sub">LLM token optimizer</span>
+    </span>
+    <span class="version-chip">v0.3</span>
+  </a>
+  <nav class="nav">
+    <a href="index.html" data-page="dashboard">Дашборд</a>
+    <a href="playground.html" data-page="playground">Playground</a>
+    <a href="docs.html" data-page="docs">Документация</a>
+    <a href="project.html" data-page="project">Проект</a>
+  </nav>
+  <span class="spacer"></span>
+  <span class="status-pill" id="gw-status"><span class="beacon pulse"></span>проверка…</span>
+</header>
+
+<main class="page stack">
+
+  <section class="hero">
+    <div class="eyebrow">Open source · MIT</div>
+    <h1>Инфраструктура, а не ещё одна обёртка над чатом.</h1>
+    <p class="lead">
+      Squeeze Gateway — прозрачный прокси между приложением и LLM-провайдером.
+      Он не меняет формат API и не требует переписывать клиент: достаточно заменить
+      базовый URL. Всё, что он делает, измеряется и записывается в журнал.
+    </p>
+    <div class="actions">
+      <a class="btn primary" href="docs.html">Как это работает</a>
+      <a class="btn" href="playground.html">Проверить вживую</a>
+    </div>
+  </section>
+
+  <!-- зачем -->
+  <section class="grid-2" style="align-items:start">
+    <div class="card">
+      <div class="card-head"><h3>Задача</h3><span class="chip dim">problem</span></div>
+      <p class="dim" style="font-size:13.5px; margin-bottom:12px">
+        Большая часть счёта за LLM — это не ответы модели, а служебная обвязка:
+        вежливые формулировки, дублирующиеся инструкции, избыточные внутренние
+        рассуждения на простых вопросах. Пользователь платит за токены, которые
+        не влияют на результат.
+      </p>
+      <div class="bullets">
+        <div class="bullet">Промпты содержат 20–40 % «воды», которую можно снять без потери смысла.</div>
+        <div class="bullet">Модель тратит сотни thinking-токенов там, где хватило бы короткого ответа.</div>
+        <div class="bullet">Существующие «оптимизаторы» часто показывают красивые цифры без методики.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Принцип</h3><span class="chip green">honest metrics</span></div>
+      <p class="dim" style="font-size:13.5px; margin-bottom:12px">
+        Любая экономия считается как разница между тем, что запрос стоил бы без шлюза,
+        и тем, что он стоил фактически. Baseline берётся у самого провайдера через
+        <span class="mono">countTokens</span>, а не оценивается эвристикой.
+      </p>
+      <div class="code" style="font-size:11.5px">
+        <pre><code><span class="c">// так считается каждая запись журнала</span>
+saved = baseline
+      - actual_input
+      - aux_tokens        <span class="c">// расход самого шлюза</span>
+      - thinking_saved    <span class="c">// через thinkingLevel</span></code></pre>
+      </div>
+      <div class="note" style="margin-top:12px">
+        Если служебный расход выше экономии, в журнале будет отрицательный результат.
+        Мы его не скрываем.
+      </div>
+    </div>
+  </section>
+
+  <!-- стек -->
+  <section>
+    <div class="section-head">
+      <div><h2>Стек</h2><p>Минимум зависимостей, максимум предсказуемости</p></div>
+    </div>
+    <div class="card" style="padding:0; overflow:hidden">
+      <table>
+        <thead><tr><th>Слой</th><th>Технология</th><th>Почему так</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="chip">proxy</span></td>
+            <td class="mono">Python 3.12 · FastAPI · httpx</td>
+            <td>Асинхронный прокси: один процесс держит конкурентные запросы, легко читается и проверяется.</td>
+          </tr>
+          <tr>
+            <td><span class="chip cpp">core</span></td>
+            <td class="mono">C++17 · pybind11</td>
+            <td>Сжатие текста и оценка токенов — на микросекундах, без сетевых вызовов и без влияния на латентность.</td>
+          </tr>
+          <tr>
+            <td><span class="chip cyan">telemetry</span></td>
+            <td class="mono">JSONL · /stats · /metrics</td>
+            <td>Журнал без текста промптов: только токены, режим, статус и время. Данные остаются локально.</td>
+          </tr>
+          <tr>
+            <td><span class="chip dim">ui</span></td>
+            <td class="mono">HTML · CSS · vanilla JS</td>
+            <td>Статическая витрина без сборщика: открывается с диска, живёт на GitHub Pages, не тянет CDN-зависимости.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- инженерные решения -->
+  <section>
+    <div class="section-head">
+      <div><h2>Что оказалось сложным</h2><p>Реальные ограничения, а не список галочек</p></div>
+    </div>
+    <div class="grid-2">
+      <div class="card hoverable">
+        <div class="card-head"><h3>Кириллица в C++</h3><span class="chip amber">regex</span></div>
+        <p class="dim" style="font-size:13.5px">
+          <span class="mono">std::regex</span> с <span class="mono">\b</span> и <span class="mono">icase</span>
+          не работает для UTF-8: границы слов определены только для ASCII. Русские паттерны
+          пришлось заменить на детерминированные подстроки и явные правила регистра.
+          Заодно MSVC потребовал <span class="mono">/utf-8</span> — без него строковые литералы
+          превращаются в мусор.
+        </p>
+      </div>
+      <div class="card hoverable">
+        <div class="card-head"><h3>Честный baseline</h3><span class="chip cyan">countTokens</span></div>
+        <p class="dim" style="font-size:13.5px">
+          Сравнивать «до и после» на глаз бессмысленно: токенизатор зависит от модели.
+          Поэтому baseline запрашивается у провайдера отдельным вызовом. Это стоит немного
+          латентности, но даёт цифру, которую можно проверить снаружи.
+        </p>
+      </div>
+      <div class="card hoverable">
+        <div class="card-head"><h3>Экономия, которая убыточна</h3><span class="chip amber">aux</span></div>
+        <p class="dim" style="font-size:13.5px">
+          LLM-сжатие короткого промпта сняло 22 токена, но сам компрессор потратил 333.
+          Итог — минус. Поэтому включён порог 2000 символов и отдельный учёт
+          <span class="mono">aux_tokens</span>: механизм, который не окупается, должен отключаться сам.
+        </p>
+      </div>
+      <div class="card hoverable">
+        <div class="card-head"><h3>Квоты и перегрузка</h3><span class="chip">503 / 429</span></div>
+        <p class="dim" style="font-size:13.5px">
+          Бесплатный тариф Gemini — около 20 генераций в день на модель. Шлюз ретраит только
+          перегрузку (503) с паузами 1/2/4 с, а на 429 сразу отдаёт понятную ошибку: ретраи
+          в этом случае лишь сжигают остаток квоты.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- подключение -->
+  <section>
+    <div class="section-head">
+      <div><h2>Подключение</h2><p>Сайт может быть статическим, шлюз — локальным</p></div>
+    </div>
+    <div class="grid-2" style="align-items:start">
+      <div class="card">
+        <div class="card-head"><h3>Адрес шлюза</h3><span class="chip dim">localStorage</span></div>
+        <p class="dim" style="font-size:13px; margin-bottom:12px">
+          На GitHub Pages нет серверной части, поэтому страницы обращаются к шлюзу по адресу,
+          который вы укажете здесь. Адрес хранится только в вашем браузере.
+          Запустите шлюз локально:
+        </p>
+        <div class="code" style="margin-bottom:14px">
+          <button class="copy-btn" type="button">копировать</button>
+          <pre><code>uvicorn server:app --port 8082</code></pre>
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label for="gateway-url">URL шлюза</label>
+          <input type="text" id="gateway-url" placeholder="http://localhost:8082" spellcheck="false">
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn primary small" id="gateway-save" type="button">Сохранить</button>
+          <a class="btn small" href="index.html">Проверить связь</a>
+        </div>
+        <p class="faint" style="font-size:11.5px; margin-top:10px">
+          Пустое поле — использовать адрес по умолчанию (localhost:8082).
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>Что нужно для запуска</h3><span class="chip green">3 шага</span></div>
+        <div class="kv"><span>1 · Python</span><span>3.12+</span></div>
+        <div class="kv"><span>2 · Ключ Gemini</span><span>.env → GEMINI_API_KEY</span></div>
+        <div class="kv"><span>3 · Сборка ядра</span><span>CMake + MSVC / gcc</span></div>
+        <div class="divider" style="margin:14px 0"></div>
+        <div class="kv"><span>Порт по умолчанию</span><span>8082</span></div>
+        <div class="kv"><span>Прокси-эндпоинт</span><span>/v1beta/models/{model}:generateContent</span></div>
+        <div class="kv"><span>Лицензия</span><span>MIT</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- дорожная карта -->
+  <section>
+    <div class="section-head">
+      <div><h2>Дорожная карта</h2><p>Сделано и запланировано — без обещаний «через месяц»</p></div>
+    </div>
+    <div class="card" style="padding:0; overflow:hidden">
+      <table>
+        <thead><tr><th>Статус</th><th>Этап</th><th>Суть</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip green">готово</span></td><td class="mono">MVP proxy</td><td>Прозрачный прокси, ретраи 503, понятная ошибка 429.</td></tr>
+          <tr><td><span class="chip green">готово</span></td><td class="mono">metrics</td><td>Baseline / факт / aux, JSONL, <span class="mono">/stats</span>, <span class="mono">/metrics</span>.</td></tr>
+          <tr><td><span class="chip green">готово</span></td><td class="mono">C++ core</td><td>Эвристическое сжатие RU/EN, оценка токенов, хэш префикса.</td></tr>
+          <tr><td><span class="chip green">готово</span></td><td class="mono">thinking auto</td><td>Классификатор сложности: LOW / MEDIUM, явный выбор клиента не переопределяется.</td></tr>
+          <tr><td><span class="chip green">готово</span></td><td class="mono">LLM squeeze</td><td>Сжатие длинных промптов с порогом окупаемости и откатом.</td></tr>
+          <tr><td><span class="chip amber">в работе</span></td><td class="mono">web</td><td>Дашборд, playground, документация на реальных данных шлюза.</td></tr>
+          <tr><td><span class="chip dim">далее</span></td><td class="mono">OpenAI-compatible</td><td><span class="mono">/v1/chat/completions</span> как вход: тогда шлюз подключается к любому клиенту.</td></tr>
+          <tr><td><span class="chip dim">далее</span></td><td class="mono">providers</td><td>OpenAI и Claude: те же рычаги (<span class="mono">reasoning_effort</span>, <span class="mono">thinking</span>).</td></tr>
+          <tr><td><span class="chip dim">далее</span></td><td class="mono">benchmark</td><td>Набор из 200 задач с проверкой качества ответа, а не только токенов.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- авторство и лицензия -->
+  <section class="grid-2" style="align-items:start">
+    <div class="card">
+      <div class="card-head"><h3>Автор</h3><span class="chip">2026</span></div>
+      <p class="dim" style="font-size:13.5px">
+        Проект сделан как портфолио для поступления в американский колледж:
+        самостоятельная разработка, замеры, документация и открытый код.
+      </p>
+      <div class="kv" style="margin-top:10px"><span>Автор</span><span>независимый разработчик</span></div>
+      <div class="kv"><span>Роль</span><span>идея · бэкенд · C++ ядро · фронтенд</span></div>
+      <div class="kv"><span>Год</span><span>2026</span></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Лицензия</h3><span class="chip green">MIT</span></div>
+      <p class="dim" style="font-size:13.5px">
+        Код можно использовать, изменять и распространять, в том числе коммерчески,
+        при сохранении уведомления об авторских правах. Полный текст — в файле
+        <span class="mono">LICENSE</span> репозитория.
+      </p>
+      <div class="note" style="margin-top:12px">
+        Шлюз использует официальный API провайдера с вашим ключом. Он не автоматизирует
+        веб-интерфейсы и не обходит биллинг — это принципиальная граница проекта.
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>Squeeze Gateway · MIT · 2026</span>
+    <span><a href="docs.html">документация</a> · <a href="playground.html">playground</a> · <a href="index.html">дашборд</a></span>
+  </footer>
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
