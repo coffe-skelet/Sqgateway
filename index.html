@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Squeeze Gateway — LLM Token Optimizer</title>
+  <meta name="description" content="Intelligent gateway that reduces LLM token consumption by 30-60% without quality loss">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/theme.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            body: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-background font-body text-on-surface antialiased" data-page="dashboard">
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md border-b border-surface-container-high">
+  <div class="h-16 w-full px-6 lg:px-12 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <a class="flex items-center gap-2 group" href="index.html">
+        <div class="w-7 h-7 bg-primary flex items-center justify-center text-on-primary font-bold text-sm transition-transform group-hover:scale-95">
+          SQ
+        </div>
+        <div class="flex flex-col">
+          <span class="font-semibold text-sm text-primary tracking-tight">Squeeze Gateway</span>
+          <span class="text-[10px] text-outline-variant font-mono uppercase tracking-wider -mt-0.5">@kirill_skoch/v0.3</span>
+        </div>
+      </a>
+      <div class="h-6 w-px bg-surface-container-high hidden xl:block"></div>
+      <nav class="hidden xl:flex items-center gap-1">
+        <a href="index.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider bg-surface-container-high text-primary">Dashboard</a>
+        <a href="playground.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Playground</a>
+        <a href="docs.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Docs</a>
+        <a href="about.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">About</a>
+      </nav>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <div class="hidden md:flex items-center gap-2 px-2.5 py-1 bg-surface-container-low border border-surface-container-high">
+        <span class="w-1.5 h-1.5 bg-primary animate-pulse"></span>
+        <span class="text-[10px] font-mono text-on-surface-variant uppercase tracking-wider" id="status-text">Checking...</span>
+      </div>
+
+      <a href="profile.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm">account_circle</span>
+        <span class="hidden sm:inline">Profile</span>
+      </a>
+
+      <button id="lang-toggle" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container border border-surface-container-high transition-all">
+        RU
+      </button>
+
+      <button id="theme-toggle" class="px-2 py-1.5 text-xs font-mono uppercase tracking-wider text-primary hover:bg-surface-container border border-surface-container-high transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm" id="theme-icon">light_mode</span>
+        <span class="hidden sm:inline" id="theme-label">Light</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="w-full pt-16 bg-surface min-h-screen">
+
+  <!-- HERO SECTION -->
+  <section class="relative w-full px-6 lg:px-12 pt-12 pb-16 overflow-hidden">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[720px] h-[340px] bg-gradient-to-b from-primary/5 via-primary/[0.02] to-transparent pointer-events-none blur-3xl -z-10"></div>
+
+    <div class="max-w-7xl mx-auto flex flex-col gap-8">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface-container font-mono text-[10px] text-on-surface uppercase tracking-widest">
+          <span class="w-1.5 h-1.5 bg-primary animate-pulse"></span>
+          PRODUCTION v0.3
+        </span>
+        <span class="font-mono text-[10px] text-outline hidden sm:inline uppercase tracking-wider">// Python + C++ Core</span>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <h1 class="font-display text-5xl lg:text-6xl text-primary tracking-tighter uppercase font-extrabold leading-none">
+          SQUEEZE GATEWAY
+        </h1>
+        <p class="font-mono text-sm lg:text-base text-secondary tracking-wider uppercase font-semibold">
+          // LLM Token Optimizer & Intelligent Gateway
+        </p>
+      </div>
+
+      <p class="text-base lg:text-lg text-on-surface-variant max-w-3xl leading-relaxed">
+        Transparent proxy between your application and LLM providers that reduces token consumption by <span class="text-primary font-bold">30–60%</span> without quality loss. Intelligent compression, thinking controller, and semantic optimization.
+      </p>
+
+      <div class="flex flex-wrap items-center gap-3 pt-2">
+        <a href="playground.html" class="px-6 py-3.5 bg-primary text-on-primary font-semibold text-sm uppercase tracking-wider transition-all hover:bg-surface-container-highest hover:text-primary shadow-md flex items-center gap-2 group">
+          <span class="material-symbols-outlined text-base">terminal</span>
+          <span>Try Playground</span>
+        </a>
+        <a href="docs.html" class="px-6 py-3.5 bg-surface-container-high text-primary font-semibold text-sm uppercase tracking-wider hover:bg-surface-bright transition-colors shadow-sm flex items-center gap-2">
+          <span class="material-symbols-outlined text-base">description</span>
+          <span>Documentation</span>
+        </a>
+        <a href="https://github.com/kirill-skoch/squeeze-gateway" class="px-5 py-3.5 bg-surface-container text-on-surface-variant hover:text-primary font-mono text-xs uppercase tracking-wider hover:bg-surface-container-high transition-colors flex items-center gap-2">
+          <span>GitHub</span>
+        </a>
+      </div>
+
+      <!-- Live Metrics -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-6">
+        <div class="lg:col-span-4 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2">
+          <!-- Metric 1 -->
+          <div class="bg-surface-container-low p-4 flex flex-col justify-between shadow-sm hover:bg-surface-container transition-colors">
+            <div class="flex items-center justify-between text-outline">
+              <span class="text-[10px] font-mono tracking-wider uppercase">// Total Requests</span>
+              <span class="material-symbols-outlined text-sm">sync_alt</span>
+            </div>
+            <div class="mt-4 flex items-baseline gap-2">
+              <span class="text-3xl lg:text-4xl text-primary font-extrabold font-display" id="live-requests">-</span>
+              <span class="text-xs font-mono text-secondary">requests</span>
+            </div>
+            <div class="w-full bg-surface-container-highest h-1 mt-3">
+              <div class="bg-primary h-full w-full transition-all duration-500"></div>
+            </div>
+          </div>
+
+          <!-- Metric 2 -->
+          <div class="bg-surface-container-low p-4 flex flex-col justify-between shadow-sm hover:bg-surface-container transition-colors">
+            <div class="flex items-center justify-between text-outline">
+              <span class="text-[10px] font-mono tracking-wider uppercase">// Avg Latency</span>
+              <span class="material-symbols-outlined text-sm">speed</span>
+            </div>
+            <div class="mt-4 flex items-baseline gap-2">
+              <span class="text-3xl lg:text-4xl text-primary font-extrabold font-display" id="live-latency">-</span>
+              <span class="text-xs font-mono text-secondary">ms avg</span>
+            </div>
+            <div class="w-full bg-surface-container-highest h-1 mt-3">
+              <div class="bg-primary h-full w-[65%] transition-all duration-500"></div>
+            </div>
+          </div>
+
+          <!-- Metric 3 -->
+          <div class="bg-surface-container-low p-4 flex flex-col justify-between shadow-sm hover:bg-surface-container transition-colors">
+            <div class="flex items-center justify-between text-outline">
+              <span class="text-[10px] font-mono tracking-wider uppercase">// Tokens Saved</span>
+              <span class="material-symbols-outlined text-sm">savings</span>
+            </div>
+            <div class="mt-4 flex items-baseline gap-2">
+              <span class="text-3xl lg:text-4xl text-primary font-extrabold font-display" id="live-saved">-</span>
+              <span class="text-xs font-mono text-secondary">% saved</span>
+            </div>
+            <div class="w-full bg-surface-container-highest h-1 mt-3">
+              <div class="bg-primary h-full w-0 transition-all duration-500" id="saved-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Terminal -->
+        <div class="lg:col-span-8 bg-surface-container-lowest p-4 shadow-xl flex flex-col relative">
+          <div class="flex items-center justify-between pb-3 mb-3 bg-surface-container-low/50 px-3 py-2 -mx-4 -mt-4">
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 bg-primary"></div>
+              <span class="text-[10px] font-mono text-primary uppercase font-bold tracking-wider">Live Metrics Feed</span>
+              <span class="text-[10px] font-mono text-outline-variant">localhost:8082</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-[10px] font-mono text-secondary flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+                ACTIVE
+              </span>
+            </div>
+          </div>
+
+          <div class="text-[11px] font-mono flex flex-col gap-1.5 overflow-hidden h-64" id="terminal-feed">
+            <div class="text-outline-variant">// Waiting for gateway data...</div>
+          </div>
+
+          <div class="mt-4 pt-3 bg-surface-container-low px-3 py-2 flex items-center justify-between gap-4">
+            <div class="flex flex-col">
+              <span class="text-[10px] font-mono text-outline uppercase">// Gateway Status</span>
+              <span class="text-xs font-mono text-primary font-bold" id="gateway-status">Checking connection...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPABILITIES SECTION -->
+  <section class="w-full px-6 lg:px-12 py-16 bg-surface-container-lowest">
+    <div class="max-w-7xl mx-auto flex flex-col gap-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 bg-surface-container-low p-4">
+        <div>
+          <span class="text-[10px] font-mono text-outline uppercase tracking-wider">// System Capabilities</span>
+          <h2 class="text-2xl lg:text-3xl text-primary uppercase font-bold tracking-tight mt-1 font-display">
+            Core Optimization Modules
+          </h2>
+        </div>
+        <p class="text-sm text-on-surface-variant max-w-md">
+          Measured on real traffic with gemini-3.6-flash (October 2026). All metrics reproducible.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <!-- Feature 1 -->
+        <div class="bg-surface-container p-4 flex flex-col justify-between group hover:bg-surface-container-high transition-colors min-h-[280px]">
+          <div>
+            <div class="flex items-center justify-between text-outline mb-4">
+              <span class="text-[10px] font-mono">// 01_COMPRESS</span>
+              <span class="material-symbols-outlined text-primary text-xl">compress</span>
+            </div>
+            <h3 class="text-lg text-primary font-bold uppercase mb-2 font-display">
+              C++ Heuristic Compressor
+            </h3>
+            <p class="text-sm text-on-surface-variant leading-relaxed">
+              Removes politeness, filler words, and duplicate lines from prompts. Microsecond-level performance with zero API cost.
+            </p>
+          </div>
+          <div class="pt-4 flex items-center justify-between text-xs font-mono text-secondary">
+            <span>Measured Savings</span>
+            <span class="text-primary font-bold">5–36% Input</span>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="bg-surface-container p-4 flex flex-col justify-between group hover:bg-surface-container-high transition-colors min-h-[280px]">
+          <div>
+            <div class="flex items-center justify-between text-outline mb-4">
+              <span class="text-[10px] font-mono">// 02_THINKING</span>
+              <span class="material-symbols-outlined text-primary text-xl">psychology</span>
+            </div>
+            <h3 class="text-lg text-primary font-bold uppercase mb-2 font-display">
+              Thinking Level Controller
+            </h3>
+            <p class="text-sm text-on-surface-variant leading-relaxed">
+              Automatically adjusts model reasoning depth. Simple queries use LOW, complex tasks stay MEDIUM/HIGH.
+            </p>
+          </div>
+          <div class="pt-4 flex items-center justify-between text-xs font-mono text-secondary">
+            <span>On Simple Queries</span>
+            <span class="text-primary font-bold">−46% Tokens</span>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="bg-surface-container p-4 flex flex-col justify-between group hover:bg-surface-container-high transition-colors min-h-[280px]">
+          <div>
+            <div class="flex items-center justify-between text-outline mb-4">
+              <span class="text-[10px] font-mono">// 03_LLM_SQUEEZE</span>
+              <span class="material-symbols-outlined text-primary text-xl">auto_awesome</span>
+            </div>
+            <h3 class="text-lg text-primary font-bold uppercase mb-2 font-display">
+              LLM-Based Compression
+            </h3>
+            <p class="text-sm text-on-surface-variant leading-relaxed">
+              Mini-model rewrites long prompts. Only activated for prompts ≥2000 chars where savings exceed auxiliary cost.
+            </p>
+          </div>
+          <div class="pt-4 flex items-center justify-between text-xs font-mono text-secondary">
+            <span>Activation Threshold</span>
+            <span class="text-primary font-bold">≥2000 chars</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECENT REQUESTS -->
+  <section class="w-full px-6 lg:px-12 py-16 bg-surface">
+    <div class="max-w-7xl mx-auto flex flex-col gap-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono text-outline uppercase tracking-wider">// Request Log</span>
+          <h2 class="text-2xl text-primary font-bold uppercase tracking-tight font-display">
+            Recent Requests
+          </h2>
+        </div>
+        <span class="text-xs font-mono text-outline-variant px-2 py-1 bg-surface-container">metrics.jsonl</span>
+      </div>
+
+      <div class="bg-surface-container shadow-xl overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs font-mono">
+          <thead>
+            <tr class="bg-surface-container-high text-outline uppercase tracking-wider">
+              <th class="p-3">Mode</th>
+              <th class="p-3">Input</th>
+              <th class="p-3">Baseline</th>
+              <th class="p-3">Saved</th>
+              <th class="p-3">Thinking</th>
+              <th class="p-3">Latency</th>
+              <th class="p-3">Status</th>
+            </tr>
+          </thead>
+          <tbody id="requests-table" class="divide-y divide-surface-container-high">
+            <tr>
+              <td colspan="7" class="p-4 text-center text-on-surface-variant">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="w-full bg-surface-container-lowest border-t border-surface-container-high">
+  <div class="w-full px-6 lg:px-12 py-12 flex flex-col gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-surface-container-high">
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center gap-2">
+          <div class="w-4 h-4 bg-primary flex items-center justify-center text-on-primary text-[9px] font-bold">SQ</div>
+          <span class="text-sm font-semibold text-primary">Squeeze Gateway</span>
+        </div>
+        <p class="text-xs font-mono text-on-surface-variant max-w-xs">
+          Open-source LLM token optimizer with C++ core and intelligent routing.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <span class="text-[10px] font-mono text-outline uppercase tracking-wider">// Technical Stack</span>
+        <span class="text-xs font-mono text-on-surface-variant">Python 3.12 + FastAPI</span>
+        <span class="text-xs font-mono text-on-surface-variant">C++17 Core (pybind11)</span>
+        <span class="text-xs font-mono text-on-surface-variant">Gemini API Compatible</span>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <span class="text-[10px] font-mono text-outline uppercase tracking-wider">// Author & Contact</span>
+        <span class="text-sm text-primary">@kirill_skoch</span>
+        <a href="https://t.me/kirill_skoch" class="text-xs font-mono text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-xs">send</span>
+          Telegram
+        </a>
+        <a href="https://github.com/kirill-skoch" class="text-xs font-mono text-on-surface-variant hover:text-primary transition-colors">GitHub Profile</a>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <span class="text-xs font-mono text-on-surface-variant">Squeeze Gateway © 2026 • MIT License</span>
+      <div class="flex items-center gap-6">
+        <a href="docs.html" class="text-xs font-mono text-on-surface-variant hover:text-primary transition-colors uppercase">Docs</a>
+        <a href="https://github.com/kirill-skoch/squeeze-gateway" class="text-xs font-mono text-on-surface-variant hover:text-primary transition-colors uppercase">GitHub</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/i18n.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
