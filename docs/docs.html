@@ -1,210 +1,289 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html class="dark" lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Squeeze Gateway — документация</title>
-  <meta name="description" content="Как Squeeze Gateway экономит токены: пайплайн, модули, API и ответы на вопросы.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Squeeze Gateway — Documentation</title>
+  <meta name="description" content="How Squeeze Gateway saves tokens: pipeline, modules, API, and FAQ">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="stylesheet" href="assets/style.css">
-</head>
-<body data-page="docs">
+  <link rel="stylesheet" href="assets/theme.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            body: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2a2c; border-radius: 4px; }
 
-<header class="topbar">
-  <a class="brand" href="index.html">
-    <span class="brand-mark">SQ</span>
-    <span>
-      <span class="brand-name">Squeeze Gateway</span><br>
-      <span class="brand-sub">LLM token optimizer</span>
-    </span>
-    <span class="version-chip">v0.3</span>
-  </a>
-  <nav class="nav">
-    <a href="index.html" data-page="dashboard">Дашборд</a>
-    <a href="playground.html" data-page="playground">Playground</a>
-    <a href="docs.html" data-page="docs">Документация</a>
-    <a href="project.html" data-page="project">Проект</a>
-  </nav>
-  <span class="spacer"></span>
-  <span class="status-pill" id="gw-status"><span class="beacon pulse"></span>проверка…</span>
+    .light {
+      --primary: #2f3131;
+      --on-primary: #ffffff;
+      --background: #fafafa;
+      --on-background: #1c1b1d;
+      --surface: #ffffff;
+      --on-surface: #1c1b1d;
+      --surface-container: #f3f3f4;
+      --surface-container-low: #f7f7f8;
+      --surface-container-lowest: #ffffff;
+      --surface-container-high: #ededee;
+      --on-surface-variant: #44474a;
+      --outline: #74777a;
+    }
+
+    details { border-bottom: 1px solid #2a2a2c; }
+    details:last-child { border-bottom: none; }
+    summary {
+      cursor: pointer; padding: 16px; font-weight: 600; font-size: 14px;
+      list-style: none; display: flex; justify-content: space-between; align-items: center;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; color: #c084fc; font-family: 'JetBrains Mono', monospace; font-size: 20px; }
+    details[open] summary::after { content: "−"; }
+    .answer { padding: 0 16px 16px; color: #94a3b8; font-size: 13px; line-height: 1.6; }
+
+    .code-block {
+      background: #0a0910; border: 1px solid #2a2a2c; border-radius: 8px;
+      padding: 16px; overflow-x: auto; font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; line-height: 1.7; color: #cbd5e1; position: relative;
+    }
+    .code-block .keyword { color: #c084fc; }
+    .code-block .string { color: #34d399; }
+    .code-block .comment { color: #64748b; }
+    .copy-btn {
+      position: absolute; top: 8px; right: 8px; padding: 4px 8px;
+      background: #201f21; border: 1px solid #2a2a2c; border-radius: 4px;
+      color: #94a3b8; font-size: 10px; cursor: pointer; text-transform: uppercase;
+    }
+    .copy-btn:hover { color: #c084fc; border-color: rgba(139,92,246,0.4); }
+  </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased" data-page="docs">
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md border-b border-surface-container-high">
+  <div class="h-16 w-full px-6 lg:px-12 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <a class="flex items-center gap-2 group" href="index.html">
+        <div class="w-7 h-7 bg-primary flex items-center justify-center text-on-primary font-bold text-sm transition-transform group-hover:scale-95">SQ</div>
+        <div class="flex flex-col">
+          <span class="font-semibold text-sm text-primary tracking-tight">Squeeze Gateway</span>
+          <span class="text-[10px] text-outline-variant font-mono uppercase tracking-wider -mt-0.5">@kirill_skoch/v0.3</span>
+        </div>
+      </a>
+      <div class="h-6 w-px bg-surface-container-high hidden xl:block"></div>
+      <nav class="hidden xl:flex items-center gap-1">
+        <a href="index.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Dashboard</a>
+        <a href="playground.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Playground</a>
+        <a href="docs.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider bg-surface-container-high text-primary">Docs</a>
+        <a href="about.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">About</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="profile.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm">account_circle</span>
+        <span class="hidden sm:inline">Profile</span>
+      </a>
+      <button id="theme-toggle" class="px-2 py-1.5 text-xs font-mono uppercase tracking-wider text-primary hover:bg-surface-container border border-surface-container-high transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm" id="theme-icon">light_mode</span>
+        <span class="hidden sm:inline" id="theme-label">Light</span>
+      </button>
+    </div>
+  </div>
 </header>
 
-<main class="page stack">
+<main class="w-full pt-16 bg-surface min-h-screen">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12 py-12">
 
-  <section class="hero">
-    <div class="eyebrow">Documentation</div>
-    <h1>Как шлюз экономит токены</h1>
-    <p class="lead">
-      Три независимых механизма. Все цифры — из живых замеров на gemini-3.6-flash
-      (октябрь 2026); методика воспроизводится командами из раздела «Проверка».
-    </p>
-  </section>
+    <!-- Hero -->
+    <section class="mb-16">
+      <span class="text-[10px] font-mono text-outline uppercase tracking-wider">// Documentation</span>
+      <h1 class="text-3xl lg:text-4xl text-primary font-bold uppercase tracking-tight font-display mt-2 mb-4">
+        How The Gateway Saves Tokens
+      </h1>
+      <p class="text-base text-on-surface-variant max-w-3xl leading-relaxed">
+        Three independent mechanisms. All numbers from live measurements on gemini-3.6-flash (October 2026); methodology reproducible with commands from "Verification" section.
+      </p>
+    </section>
 
-  <!-- пайплайн -->
-  <section>
-    <div class="section-head"><div><h2>Пайплайн запроса</h2><p>Что происходит между вашим приложением и моделью</p></div></div>
-    <div class="grid-2">
-      <div class="card hoverable">
-        <div class="card-head"><h3>1 · Приём и замер baseline</h3><span class="chip">countTokens</span></div>
-        <p class="dim" style="font-size:13.5px">Шлюз принимает запрос в формате Gemini API и спрашивает у провайдера, сколько токенов потребовал бы оригинальный промпт. Это опорная точка всей экономии — без неё любые «мы сэкономили» были бы маркетингом.</p>
-      </div>
-      <div class="card hoverable">
-        <div class="card-head"><h3>2 · Сжатие ввода</h3><span class="chip green">−5…36%</span></div>
-        <p class="dim" style="font-size:13.5px">C++ ядро снимает вежливость и канцелярит, дедуплицирует повторяющиеся строки. На плотных технических промптах — почти ничего не трогает: приоритет «не навредить» выше экономии.</p>
-      </div>
-      <div class="card hoverable">
-        <div class="card-head"><h3>3 · Глубина мышления</h3><span class="chip amber">−46% на простых</span></div>
-        <p class="dim" style="font-size:13.5px">Классификатор по маркерам сложности решает, можно ли понизить thinking-уровень. «Что такое / переведи / кратко» → LOW, «объясни / докажи / реши» → MEDIUM. Явный выбор клиента всегда уважается.</p>
-      </div>
-      <div class="card hoverable">
-        <div class="card-head"><h3>4 · Отправка и учёт</h3><span class="chip cyan">baseline − факт − aux</span></div>
-        <p class="dim" style="font-size:13.5px">Запрос уходит провайдеру с ретраями на 503 и понятной ошибкой на 429. Каждый запрос пишется в JSONL: ввод, мысли, ответ, латентность и служебный расход шлюза.</p>
-      </div>
-    </div>
-  </section>
+    <!-- Request Pipeline -->
+    <section class="mb-16">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-6">Request Pipeline</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-  <!-- модули -->
-  <section>
-    <div class="section-head"><div><h2>Модули и замеренный эффект</h2><p>Честные диапазоны, а не верхняя оценка</p></div></div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-head"><h3>C++ компрессор</h3><span class="chip green">замерено до −36%</span></div>
-        <div class="kv"><span>Болтливый промпт</span><span>63 → 41 токен</span></div>
-        <div class="kv"><span>Плотная задача</span><span>84 → 79 токенов</span></div>
-        <div class="kv"><span>Чистый промпт</span><span>без изменений</span></div>
-        <div class="kv"><span>Стоимость</span><span>0 токенов, микросекунды</span></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><h3>Контроллер мышления</h3><span class="chip amber">замерено −46%</span></div>
-        <div class="kv"><span>Простой вопрос, default</span><span>918 токенов</span></div>
-        <div class="kv"><span>Простой вопрос, LOW</span><span>493 токена · 6.1 с</span></div>
-        <div class="kv"><span>Сложный вопрос, MEDIUM</span><span>2630 токенов</span></div>
-        <div class="kv"><span>Сложный вопрос, LOW</span><span>2341 токен (−11%)</span></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><h3>LLM-сжатие</h3><span class="chip">порог 2000 симв.</span></div>
-        <p class="dim" style="font-size:13px; margin-bottom:10px">Мини-модель переписывает длинный промпт, сохраняя факты и требования. На коротких промптах убыточно: компрессор сам стоит ~300 aux-токенов. Поэтому — порог окупаемости.</p>
-        <div class="kv"><span>Короткий промпт</span><span>63 → 41, aux 333 → нетто минус</span></div>
-        <div class="kv"><span>Решение</span><span>включать только ≥ 2000 символов</span></div>
-      </div>
-      <div class="card">
-        <div class="card-head"><h3>Надёжность</h3><span class="chip cyan">503 / 429</span></div>
-        <div class="kv"><span>503 «high demand»</span><span>3 ретрая: 1 / 2 / 4 с</span></div>
-        <div class="kv"><span>429 «квота»</span><span>сразу понятная ошибка</span></div>
-        <div class="kv"><span>Пустое сжатие</span><span>откат на оригинал</span></div>
-        <div class="kv"><span>Выбор клиента</span><span>не переопределяется</span></div>
-      </div>
-    </div>
-  </section>
+        <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg hover:border-outline-variant transition-colors">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-[10px] font-mono text-outline uppercase">// Step 1</span>
+            <span class="material-symbols-outlined text-primary text-xl">calculate</span>
+          </div>
+          <h3 class="text-base font-bold text-primary uppercase mb-2 font-display">Baseline Measurement</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            Gateway receives request in Gemini API format and asks provider how many tokens the original prompt would cost via countTokens. This is the reference point for all savings — without it, any "we saved" claims would be marketing.
+          </p>
+        </div>
 
-  <!-- API -->
-  <section>
-    <div class="section-head"><div><h2>API</h2><p>Формат Gemini generateContent; query-параметры включают оптимизации</p></div></div>
-    <div class="card" style="padding:0; overflow:hidden">
-      <table>
-        <thead><tr><th>Метод</th><th>Эндпоинт</th><th>Назначение</th></tr></thead>
-        <tbody>
-          <tr><td class="mono">POST</td><td class="mono">/v1beta/models/{model}:generateContent</td><td>Основной прокси с оптимизацией (<span class="mono">?squeeze=</span>, <span class="mono">?thinking=</span>)</td></tr>
-          <tr><td class="mono">GET</td><td class="mono">/health</td><td>Статус и наличие ключа</td></tr>
-          <tr><td class="mono">GET</td><td class="mono">/stats</td><td>Суммарная сводка: запросы, baseline, aux, нетто-экономия</td></tr>
-          <tr><td class="mono">GET</td><td class="mono">/metrics?limit=12</td><td>Последние записи журнала для интерфейса</td></tr>
-          <tr><td class="mono">GET</td><td class="mono">/api/summary</td><td>Единая сводка для дашборда</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+        <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg hover:border-outline-variant transition-colors">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-[10px] font-mono text-outline uppercase">// Step 2</span>
+            <span class="material-symbols-outlined text-primary text-xl">compress</span>
+          </div>
+          <h3 class="text-base font-bold text-primary uppercase mb-2 font-display">Input Compression</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            C++ core removes politeness and bureaucratic phrases, deduplicates repeating lines. On dense technical prompts — barely touches anything: "don't harm" priority exceeds savings.
+          </p>
+        </div>
 
-  <!-- интеграция -->
-  <section>
-    <div class="section-head"><div><h2>Интеграция</h2><p>Замените базовый URL — остальной код не меняется</p></div></div>
-    <div class="card">
-      <div class="seg" data-tabs style="margin-bottom:12px">
-        <button class="active" data-lang="curl" type="button">cURL</button>
-        <button data-lang="python" type="button">Python</button>
-        <button data-lang="js" type="button">JavaScript</button>
+        <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg hover:border-outline-variant transition-colors">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-[10px] font-mono text-outline uppercase">// Step 3</span>
+            <span class="material-symbols-outlined text-primary text-xl">psychology</span>
+          </div>
+          <h3 class="text-base font-bold text-primary uppercase mb-2 font-display">Thinking Depth</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            Classifier by complexity markers decides if thinking level can be lowered. "What is / translate / briefly" → LOW, "explain / prove / solve" → MEDIUM. Explicit client choice always respected.
+          </p>
+        </div>
+
+        <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg hover:border-outline-variant transition-colors">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-[10px] font-mono text-outline uppercase">// Step 4</span>
+            <span class="material-symbols-outlined text-primary text-xl">send</span>
+          </div>
+          <h3 class="text-base font-bold text-primary uppercase mb-2 font-display">Send & Account</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">
+            Request goes to provider with retries on 503 and clear error on 429. Each request written to JSONL: input, thinking, output, latency, and gateway auxiliary cost.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Measured Results -->
+    <section class="mb-16">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-6">Measured Results</h2>
+
+      <div class="bg-surface-container-low border border-surface-container-high rounded-lg overflow-hidden mb-6">
+        <div class="p-6 bg-surface-container-high">
+          <h3 class="text-base font-bold text-primary uppercase font-display">C++ Compressor</h3>
+          <span class="text-xs font-mono text-outline-variant">Measured up to −36%</span>
+        </div>
+        <div class="p-6 space-y-3">
+          <div class="flex justify-between text-sm"><span class="text-on-surface-variant">Verbose prompt</span><span class="font-mono text-primary">63 → 41 tokens</span></div>
+          <div class="flex justify-between text-sm"><span class="text-on-surface-variant">Dense task</span><span class="font-mono text-primary">84 → 79 tokens</span></div>
+          <div class="flex justify-between text-sm"><span class="text-on-surface-variant">Clean prompt</span><span class="font-mono text-primary">No changes</span></div>
+          <div class="flex justify-between text-sm"><span class="text-on-surface-variant">Cost</span><span class="font-mono text-primary">0 tokens, microseconds</span></div>
+        </div>
       </div>
 
-      <div data-pane="curl">
-        <div class="code"><button class="copy-btn">копировать</button><pre><code><span class="c"># эвристика + авто-глубина мышления</span>
-curl -X POST <span class="s">"http://localhost:8082/v1beta/models/gemini-3.6-flash:generateContent?squeeze=1&amp;thinking=auto"</span> \
-  -H <span class="s">"Content-Type: application/json"</span> \
-  -d <span class="s">'{"contents":[{"role":"user","parts":[{"text":"Что такое FFT? Кратко."}]}]}'</span></code></pre></div>
+      <div class="bg-surface-container-low border border-surface-container-high rounded-lg overflow-hidden">
+        <div class="p-6 bg-surface-container-high">
+          <h3 class="text-base font-bold text-primary uppercase font-display">Thinking Controller</h3>
+          <span class="text-xs font-mono text-outline-variant">Measured −46% on simple queries</span>
+        </div>
+        <div class="p-6 space-y-3">
+          <div class="flex justify-between text-sm"><span class="text-on-surface-variant">Simple question, default</span><span class="font-mono text-primary">918 tokens</span></div>
+          <div class="flex justify-between text-sm"><span class="text-on-surface-variant">Simple question, LOW</span><span class="font-mono text-primary">493 tokens • 6.1s</span></div>
+          <div class="flex justify-between text-sm"><span class="text-on-surface-variant">Complex question, MEDIUM</span><span class="font-mono text-primary">2630 tokens</span></div>
+          <div class="flex justify-between text-sm"><span class="text-on-surface-variant">Complex question, LOW</span><span class="font-mono text-primary">2341 tokens (−11%)</span></div>
+        </div>
       </div>
+    </section>
 
-      <div data-pane="python" class="hidden">
-        <div class="code"><button class="copy-btn">копировать</button><pre><code><span class="k">import</span> httpx
+    <!-- Integration -->
+    <section class="mb-16">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-6">Integration</h2>
+      <p class="text-sm text-on-surface-variant mb-4">Replace the base URL — rest of the code stays the same</p>
 
-url = (<span class="s">"http://localhost:8082/v1beta/models/"</span>
-       <span class="s">"gemini-3.6-flash:generateContent?squeeze=1&amp;thinking=auto"</span>)
-r = httpx.post(url, json={<span class="s">"contents"</span>: [{
-    <span class="s">"role"</span>: <span class="s">"user"</span>,
-    <span class="s">"parts"</span>: [{<span class="s">"text"</span>: <span class="s">"Что такое FFT? Кратко."</span>}],
-}]}, timeout=<span class="v">120</span>)
-print(r.json()[<span class="s">"candidates"</span>][<span class="v">0</span>][<span class="s">"content"</span>][<span class="s">"parts"</span>][<span class="v">0</span>][<span class="s">"text"</span>])</code></pre></div>
+      <div class="code-block">
+        <button class="copy-btn">Copy</button>
+        <pre><code><span class="comment"># Python: heuristic + auto thinking depth</span>
+curl -X POST <span class="string">"http://localhost:8082/v1beta/models/gemini-3.6-flash:generateContent?squeeze=1&thinking=auto"</span> \
+  -H <span class="string">"Content-Type: application/json"</span> \
+  -d <span class="string">'{"contents":[{"role":"user","parts":[{"text":"What is FFT? Briefly."}]}]}'</span></code></pre>
       </div>
+    </section>
 
-      <div data-pane="js" class="hidden">
-        <div class="code"><button class="copy-btn">копировать</button><pre><code><span class="k">const</span> res = <span class="k">await</span> fetch(
-  <span class="s">"http://localhost:8082/v1beta/models/gemini-3.6-flash:generateContent?squeeze=1&amp;thinking=auto"</span>,
-  {
-    method: <span class="s">"POST"</span>,
-    headers: { <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span> },
-    body: JSON.stringify({ contents: [{
-      role: <span class="s">"user"</span>, parts: [{ text: <span class="s">"Что такое FFT? Кратко."</span> }],
-    }] }),
-  });
-<span class="k">const</span> data = <span class="k">await</span> res.json();</code></pre></div>
+    <!-- FAQ -->
+    <section class="mb-16">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-6">Frequently Asked Questions</h2>
+
+      <div class="bg-surface-container-low border border-surface-container-high rounded-lg overflow-hidden">
+        <details>
+          <summary>How much exactly does the gateway save?</summary>
+          <div class="answer">
+            Depends on traffic. On simple chat questions total −40…60% (mainly from thinking control), on medium "explain/why" — 30–40%, on dense technical tasks — 15–30% (compression barely helps there, and we don't lower thinking). On mixed traffic of real application — target 30% achieved with margin.
+          </div>
+        </details>
+
+        <details>
+          <summary>Does compression harm answer quality?</summary>
+          <div class="answer">
+            This is the main risk, limited three ways: (1) heuristic only touches politeness/bureaucracy/repeats, not data; (2) on dense prompts it stops itself (−6% or 0%); (3) LLM-compression activates only from 2000 chars and falls back to heuristic on empty result. On tests clean prompt stays untouched — separate check in logs.
+          </div>
+        </details>
+
+        <details>
+          <summary>Why can model "think" less — won't that degrade answers?</summary>
+          <div class="answer">
+            For simple tasks — no: measurement showed that on defining quantum entanglement LOW gave same quality answer in 6 seconds instead of 17 and 493 tokens instead of 918. For complex tasks (proofs, multi-step reasoning) classifier leaves MEDIUM — lowering there is harmful, and we don't do it.
+          </div>
+        </details>
+
+        <details>
+          <summary>Which models are supported?</summary>
+          <div class="answer">
+            Today — Gemini 3.x (3.5 / 3.6; 3.8 works but sometimes overloaded on Google side). Architecturally gateway designed as universal: OpenAI and Claude have similar controls (reasoning_effort / thinking), and input planned in OpenAI-compatible format — then any client can switch base URL and get same optimizations.
+          </div>
+        </details>
+
+        <details>
+          <summary>What happens with my API key and data?</summary>
+          <div class="answer">
+            Key stored only in .env on your machine and never committed to repository (.env in .gitignore). Requests go directly to Google, bypassing third-party servers; metrics log — local file logs/metrics.jsonl without prompt text: only tokens, latency, and mode.
+          </div>
+        </details>
+
+        <details>
+          <summary>Can I verify the measurements myself?</summary>
+          <div class="answer">
+            Yes. Repository has tests/ (thinking levels), CLI client, and metrics log. Any number from this page is reproducible: launch gateway, ask question in passthrough and optimized mode, compare usageMetadata. Methodology honest: baseline taken from provider via countTokens, not estimated "by eye".
+          </div>
+        </details>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- FAQ -->
-  <section>
-    <div class="section-head"><div><h2>Ответы на вопросы</h2><p>Коротко и без маркетинга</p></div></div>
-    <div class="accordion">
-      <details open>
-        <summary>Сколько именно экономит шлюз?</summary>
-        <div class="answer">Зависит от трафика. На простых чат-вопросах суммарно −40…60% (в основном за счёт контроля глубины мышления), на средних «объясни/почему» — 30–40%, на плотных технических задачах — 15–30% (сжатие там почти нечего даёт, а мышление мы не понижаем). На смешанном трафике реального приложения — целевые 30% достигаются с запасом. На дашборде процент ниже: он считает только вход и служебные траты на текущей выборке, без контрфактического замера thinking — эти цифры берутся из парных тестов.</div>
-      </details>
-      <details>
-        <summary>Не портит ли сжатие качество ответов?</summary>
-        <div class="answer">Это главный риск, и он ограничен тремя способами: (1) эвристика трогает только вежливость/канцелярит/повторы, но не данные; (2) на плотных промптах она сама себя останавливает (−6% или 0%); (3) LLM-сжатие включается только от 2000 символов и откатывается на эвристику при пустом результате. На тестах чистый промпт остаётся нетронутым — это отдельная проверка в журнале.</div>
-      </details>
-      <details>
-        <summary>Почему модель может «думать» меньше — это же ухудшает ответы?</summary>
-        <div class="answer">Для простых задач — нет: замер показал, что на определении квантовой запутанности LOW дал ответ того же качества за 6 секунд вместо 17 и 493 токена вместо 918. Для сложных задач (доказательства, многошаговые рассуждения) классификатор оставляет MEDIUM — понижение там вредно, и мы этого не делаем.</div>
-      </details>
-      <details>
-        <summary>Какие модели поддерживаются?</summary>
-        <div class="answer">Сегодня — Gemini 3.x (3.5 / 3.6; 3.8 работает, но бывает перегружена на стороне Google). Архитектурно шлюз проектируется как универсальный: у OpenAI и Claude аналогичные рычаги (reasoning_effort / thinking), а вход планируется в OpenAI-совместимом формате — тогда любой клиент сможет переключить base URL и получить те же оптимизации.</div>
-      </details>
-      <details>
-        <summary>Что происходит с моим ключом и данными?</summary>
-        <div class="answer">Ключ хранится только в .env на вашей машине и никогда не коммитится в репозиторий (.env в .gitignore). Запросы идут напрямую в Google, минуя сторонние серверы; журнал метрик — локальный файл logs/metrics.jsonl без текста промптов: только токены, латентность и режим.</div>
-      </details>
-      <details>
-        <summary>Почему в бесплатном режиме иногда ошибка 429?</summary>
-        <div class="answer">Это дневная квота Google на бесплатном тарифе (≈20 генераций в день на модель), а не ошибка шлюза. Ретраи при 503 тоже расходуют квоту — поэтому шлюз ретраит только перегрузку, а на 429 сразу отдаёт понятное сообщение. Для полноценных замеров нужен тариф с оплатой.</div>
-      </details>
-      <details>
-        <summary>Можно ли проверить замеры самому?</summary>
-        <div class="answer">Да. В репозитории есть tests/ (уровни мышления), CLI-клиент и журнал метрик. Любая цифра из этой страницы воспроизводится: запустите шлюз, задайте вопрос в passthrough и в оптимизированном режиме, сравните usageMetadata. Методика честная: baseline берётся у провайдера через countTokens, а не оценивается «на глаз».</div>
-      </details>
-      <details>
-        <summary>Это законно и не нарушает условия провайдеров?</summary>
-        <div class="answer">Да: шлюз использует официальный API с вашим ключом и не автоматизирует веб-интерфейсы. Официальные платформенные входы (Vertex AI / Azure OpenAI / Bedrock) — легальный путь для корпоративных аккаунтов, который мы планируем поддержать. Вход через личные веб-аккаунты ChatGPT/Claude — вне рамок проекта, так как нарушает ToS.</div>
-      </details>
-    </div>
-  </section>
-
-  <footer class="footer">
-    <span>Squeeze Gateway · MIT · 2026</span>
-    <span><a href="playground.html">попробовать</a> · <a href="project.html">проект</a></span>
-  </footer>
+  </div>
 </main>
+
+<footer class="w-full bg-surface-container-lowest border-t border-surface-container-high">
+  <div class="w-full px-6 lg:px-12 py-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <span class="text-xs font-mono text-on-surface-variant">Squeeze Gateway © 2026 • MIT License</span>
+      <div class="flex items-center gap-6">
+        <a href="playground.html" class="text-xs font-mono text-on-surface-variant hover:text-primary transition-colors uppercase">Try It</a>
+        <a href="https://github.com/kirill-skoch/squeeze-gateway" class="text-xs font-mono text-on-surface-variant hover:text-primary transition-colors uppercase">GitHub</a>
+      </div>
+    </div>
+  </div>
+</footer>
 
 <script src="assets/app.js"></script>
 </body>

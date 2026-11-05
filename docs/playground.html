@@ -1,126 +1,218 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html class="dark" lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Squeeze Gateway — Playground</title>
-  <meta name="description" content="Чат через Squeeze Gateway: сравните расход токенов в разных режимах оптимизации.">
+  <meta name="description" content="Live chat through Squeeze Gateway with real-time token optimization metrics">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="stylesheet" href="assets/style.css">
-</head>
-<body data-page="playground">
+  <link rel="stylesheet" href="assets/theme.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            body: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+    }
 
-<header class="topbar">
-  <a class="brand" href="index.html">
-    <span class="brand-mark">SQ</span>
-    <span>
-      <span class="brand-name">Squeeze Gateway</span><br>
-      <span class="brand-sub">LLM token optimizer</span>
-    </span>
-    <span class="version-chip">v0.3</span>
-  </a>
-  <nav class="nav">
-    <a href="index.html" data-page="dashboard">Дашборд</a>
-    <a href="playground.html" data-page="playground">Playground</a>
-    <a href="docs.html" data-page="docs">Документация</a>
-    <a href="project.html" data-page="project">Проект</a>
-  </nav>
-  <span class="spacer"></span>
-  <span class="status-pill" id="gw-status"><span class="beacon pulse"></span>проверка…</span>
+    .msg { max-width: 85%; padding: 14px 16px; border-radius: 12px; white-space: pre-wrap; word-wrap: break-word; font-size: 14px; line-height: 1.6; margin-bottom: 12px; }
+    .msg.user { align-self: flex-end; background: linear-gradient(135deg, #6d28d9, #5b21b6); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
+    .msg.bot { align-self: flex-start; background: #201f21; border: 1px solid #2a2a2c; color: #e5e1e4; }
+    .msg .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .thinking { color: #94a3b8; font-size: 13px; padding: 10px 14px; border: 1px dashed #2a2a2c; border-radius: 8px; align-self: flex-start; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; padding: 4px 7px; border-radius: 4px;
+      background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); color: #c084fc;
+      white-space: nowrap;
+    }
+    .chip.green { color: #34d399; background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); }
+    .chip.cyan { color: #67e8f9; background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.3); }
+    .chip.amber { color: #fcd34d; background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); }
+    .chip.dim { color: #94a3b8; background: rgba(148,163,184,0.08); border-color: rgba(148,163,184,0.2); }
+    .chip.cpp { color: #34d399; background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); }
+    .chip.llm { color: #c4b5fd; background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.4); }
+  </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased" data-page="playground">
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md border-b border-surface-container-high">
+  <div class="h-16 w-full px-6 lg:px-12 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <a class="flex items-center gap-2 group" href="index.html">
+        <div class="w-7 h-7 bg-primary flex items-center justify-center text-on-primary font-bold text-sm transition-transform group-hover:scale-95">SQ</div>
+        <div class="flex flex-col">
+          <span class="font-semibold text-sm text-primary tracking-tight">Squeeze Gateway</span>
+          <span class="text-[10px] text-outline-variant font-mono uppercase tracking-wider -mt-0.5">@kirill_skoch/v0.3</span>
+        </div>
+      </a>
+      <div class="h-6 w-px bg-surface-container-high hidden xl:block"></div>
+      <nav class="hidden xl:flex items-center gap-1">
+        <a href="index.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Dashboard</a>
+        <a href="playground.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider bg-surface-container-high text-primary">Playground</a>
+        <a href="docs.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Docs</a>
+        <a href="about.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">About</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="hidden md:flex items-center gap-2 px-2.5 py-1 bg-surface-container-low border border-surface-container-high">
+        <span class="w-1.5 h-1.5 bg-primary animate-pulse"></span>
+        <span class="text-[10px] font-mono text-on-surface-variant uppercase tracking-wider" id="status-text">Checking...</span>
+      </div>
+      <a href="profile.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm">account_circle</span>
+        <span class="hidden sm:inline">Profile</span>
+      </a>
+      <button id="lang-toggle" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container border border-surface-container-high transition-all">
+        RU
+      </button>
+      <button id="theme-toggle" class="px-2 py-1.5 text-xs font-mono uppercase tracking-wider text-primary hover:bg-surface-container border border-surface-container-high transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm" id="theme-icon">light_mode</span>
+        <span class="hidden sm:inline" id="theme-label">Light</span>
+      </button>
+    </div>
+  </div>
 </header>
 
-<main class="page stack">
-  <div class="section-head">
-    <div>
-      <div class="eyebrow">Live test bench</div>
-      <h1 style="font-size:26px">Playground</h1>
-      <p>Запрос идёт через шлюз: сжатие, контроль глубины мышления и честная телеметрия ответа.</p>
+<main class="w-full pt-16 bg-surface min-h-screen">
+  <div class="max-w-7xl mx-auto px-6 lg:px-12 py-8">
+
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <span class="text-[10px] font-mono text-outline uppercase tracking-wider">// Live Test Bench</span>
+        <h1 class="text-2xl lg:text-3xl text-primary font-bold uppercase tracking-tight font-display">Playground</h1>
+        <p class="text-sm text-on-surface-variant mt-1">Real gateway with compression, thinking control, and honest telemetry.</p>
+      </div>
+      <button id="reset-chat" class="px-4 py-2 text-xs font-mono uppercase tracking-wider bg-surface-container text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all">
+        Clear Chat
+      </button>
     </div>
-    <button class="btn small" id="reset-chat" type="button">Очистить чат</button>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Chat Section -->
+      <div class="lg:col-span-8 bg-surface-container-low border border-surface-container-high rounded-lg p-4 flex flex-col" style="height: 70vh;">
+        <div id="chat-log" class="flex-1 overflow-y-auto flex flex-col mb-4"></div>
+
+        <form id="composer" class="border-t border-surface-container-high pt-4" autocomplete="off">
+          <div class="flex gap-3 mb-3 flex-wrap">
+            <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+              <label class="text-[10px] font-mono text-outline uppercase tracking-wider" for="squeeze-mode">Compression</label>
+              <select id="squeeze-mode" class="bg-surface-container border border-surface-container-high rounded px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-primary">
+                <option value="0">Off — passthrough</option>
+                <option value="1" selected>C++ heuristic</option>
+                <option value="2">LLM compression (≥2000 chars)</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+              <label class="text-[10px] font-mono text-outline uppercase tracking-wider" for="thinking-mode">Thinking Level</label>
+              <select id="thinking-mode" class="bg-surface-container border border-surface-container-high rounded px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-primary">
+                <option value="auto" selected>Auto — by complexity</option>
+                <option value="low">LOW</option>
+                <option value="medium">MEDIUM</option>
+                <option value="-">Don't interfere</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+              <label class="text-[10px] font-mono text-outline uppercase tracking-wider" for="model-select">Model</label>
+              <select id="model-select" class="bg-surface-container border border-surface-container-high rounded px-3 py-2 text-sm text-on-surface focus:outline-none focus:border-primary">
+                <option value="gemini-3.6-flash" selected>gemini-3.6-flash</option>
+                <option value="gemini-3.5-flash">gemini-3.5-flash</option>
+                <option value="gemini-3.8-flash">gemini-3.8-flash (may be throttled)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex gap-3 items-end">
+            <textarea id="chat-input" placeholder="Ask something..." class="flex-1 bg-surface-container border border-surface-container-high rounded px-4 py-3 text-sm text-on-surface resize-none focus:outline-none focus:border-primary" rows="3"></textarea>
+            <button type="submit" id="send" class="px-6 py-3 bg-primary text-on-primary font-bold text-2xl rounded hover:bg-surface-container-highest hover:text-primary transition-all flex items-center justify-center" style="height: 72px; width: 72px;">
+              ➤
+            </button>
+          </div>
+
+          <div class="text-[10px] font-mono text-outline-variant mt-2">
+            Telemetry below each response: input • thinking • saved • latency. Full history on dashboard.
+          </div>
+        </form>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="lg:col-span-4 bg-surface-container-low border border-surface-container-high rounded-lg p-4">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-bold uppercase text-primary font-display">Modes</h3>
+          <span class="text-[10px] font-mono text-outline-variant uppercase">Query Params</span>
+        </div>
+
+        <p class="text-[10px] font-mono text-outline uppercase tracking-wider mb-2">// Compression</p>
+        <div class="space-y-2 mb-4">
+          <div class="text-xs text-on-surface-variant"><strong class="text-on-surface">Passthrough</strong> — gateway doesn't modify, only counts baseline.</div>
+          <div class="text-xs text-on-surface-variant"><strong class="text-on-surface">C++</strong> — removes politeness, fillers, duplicates; measured up to −36% input.</div>
+          <div class="text-xs text-on-surface-variant"><strong class="text-on-surface">LLM</strong> — mini-model rewrites long prompts; activates from 2000 chars.</div>
+        </div>
+
+        <p class="text-[10px] font-mono text-outline uppercase tracking-wider mb-2">// Thinking</p>
+        <div class="space-y-2 mb-4">
+          <div class="text-xs text-on-surface-variant"><strong class="text-on-surface">Auto</strong> — classifier: "what is / briefly" → LOW, "explain / prove" → MEDIUM.</div>
+          <div class="text-xs text-on-surface-variant"><strong class="text-on-surface">LOW</strong> — measured −46% tokens and −65% time on simple queries.</div>
+        </div>
+
+        <div class="h-px bg-surface-container-high my-4"></div>
+
+        <div class="space-y-2 text-xs font-mono text-on-surface-variant">
+          <div class="flex justify-between"><span class="text-outline">Request</span><span>POST /v1beta/models/{model}:generateContent</span></div>
+          <div class="flex justify-between"><span class="text-outline">Params</span><span>?squeeze=0|1|2 &thinking=auto|low|medium</span></div>
+          <div class="flex justify-between"><span class="text-outline">Format</span><span>Gemini generateContent</span></div>
+        </div>
+      </aside>
+
+    </div>
   </div>
-
-  <div class="chat-shell">
-    <section class="card chat">
-      <div class="chat-log" id="chat-log">
-        <div class="msg bot">
-          Привет. Это живой шлюз, а не мокап: каждый ответ ниже прошёл через оптимизацию.
-          <div class="meta">
-            <span class="chip">выберите режим ниже</span>
-            <span class="chip dim">Enter — отправить</span>
-          </div>
-        </div>
-      </div>
-
-      <form class="composer" id="composer" autocomplete="off">
-        <div style="display:flex; gap:10px; flex-wrap:wrap">
-          <div class="field">
-            <label for="squeeze-mode">Сжатие</label>
-            <select id="squeeze-mode">
-              <option value="0">выкл — passthrough</option>
-              <option value="1" selected>эвристика C++</option>
-              <option value="2">LLM-сжатие · ≥2000 симв.</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="thinking-mode">Глубина мышления</label>
-            <select id="thinking-mode">
-              <option value="auto" selected>auto — по сложности</option>
-              <option value="low">LOW</option>
-              <option value="medium">MEDIUM</option>
-              <option value="-">не вмешиваться</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="model-select">Модель</label>
-            <select id="model-select">
-              <option value="gemini-3.6-flash" selected>gemini-3.6-flash</option>
-              <option value="gemini-3.5-flash">gemini-3.5-flash</option>
-              <option value="gemini-3.8-flash">gemini-3.8-flash · перегружена</option>
-            </select>
-          </div>
-        </div>
-        <div class="composer-row">
-          <textarea id="chat-input" placeholder="Спросите что-нибудь…"></textarea>
-          <button class="btn primary" id="send" type="submit" title="Отправить">➤</button>
-        </div>
-        <div class="composer-hint">
-          Телеметрия под ответом: ввод · мысли · ответ · время. Полная история — на дашборде.
-        </div>
-      </form>
-    </section>
-
-    <aside class="card">
-      <div class="card-head"><h3>Режимы</h3><span class="chip dim">query params</span></div>
-
-      <p class="faint" style="font-size:12px; margin-bottom:8px">Сжатие</p>
-      <div class="bullets" style="margin-bottom:14px">
-        <div class="bullet"><strong>passthrough</strong> — шлюз ничего не меняет, только считает baseline.</div>
-        <div class="bullet"><strong>C++</strong> — снимает вежливость, канцелярит, повторы; замерено до −36% ввода.</div>
-        <div class="bullet"><strong>LLM</strong> — мини-модель переписывает длинный промпт; включается от 2000 символов.</div>
-      </div>
-
-      <p class="faint" style="font-size:12px; margin-bottom:8px">Thinking</p>
-      <div class="bullets" style="margin-bottom:14px">
-        <div class="bullet"><strong>auto</strong> — классификатор: «что такое / кратко» → LOW, «объясни / докажи» → MEDIUM.</div>
-        <div class="bullet"><strong>LOW</strong> — замерено −46% токенов и −65% времени на простых вопросах.</div>
-      </div>
-
-      <div class="divider" style="margin:14px 0"></div>
-      <div class="kv"><span>Запрос</span><span>POST /v1beta/models/{model}:generateContent</span></div>
-      <div class="kv"><span>Параметры</span><span>?squeeze=0|1|2 &amp;thinking=auto|low|medium</span></div>
-      <div class="kv"><span>Формат</span><span>Gemini generateContent</span></div>
-    </aside>
-  </div>
-
-  <footer class="footer">
-    <span>Squeeze Gateway · MIT · 2026</span>
-    <span>если упирается в лимит — это квота Google, не шлюз</span>
-  </footer>
 </main>
 
+<footer class="w-full bg-surface-container-lowest border-t border-surface-container-high mt-12">
+  <div class="w-full px-6 lg:px-12 py-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <span class="text-xs font-mono text-on-surface-variant">Squeeze Gateway © 2026 • MIT License</span>
+      <span class="text-xs font-mono text-outline-variant">If hitting quota limit — that's Google's quota, not the gateway</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/i18n.js"></script>
 <script src="assets/app.js"></script>
+<script>
+  // Initialize chat with welcome message
+  document.addEventListener('DOMContentLoaded', () => {
+    const log = document.getElementById('chat-log');
+    if (log && log.children.length === 0) {
+      const welcome = document.createElement('div');
+      welcome.className = 'msg bot';
+      welcome.innerHTML = `Hello. This is a live gateway, not a mockup: every response goes through optimization.<div class="meta"><span class="chip dim">Select mode below</span><span class="chip dim">Enter to send</span></div>`;
+      log.appendChild(welcome);
+    }
+  });
+</script>
 </body>
 </html>
