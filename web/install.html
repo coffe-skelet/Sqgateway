@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SKgate - Installation Guide</title>
+  <meta name="description" content="Complete installation guide for SKgate CLI">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/theme.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            body: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            'primary': 'var(--color-primary)',
+            'on-primary': 'var(--color-on-primary)',
+            'secondary': 'var(--color-secondary)',
+            'background': 'var(--color-background)',
+            'surface': 'var(--color-surface)',
+            'on-surface': 'var(--color-on-surface)',
+            'surface-container': 'var(--color-surface-container)',
+            'surface-container-low': 'var(--color-surface-container-low)',
+            'surface-container-high': 'var(--color-surface-container-high)',
+            'outline': 'var(--color-outline)',
+            'outline-variant': 'var(--color-outline-variant)',
+            'on-surface-variant': 'var(--color-on-surface-variant)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .code-block {
+      background: var(--color-surface-container-lowest);
+      border: 1px solid var(--color-surface-container-high);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+    }
+    .code-block code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--color-primary);
+    }
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: var(--color-primary);
+      color: var(--color-on-primary);
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 14px;
+      margin-right: 12px;
+    }
+  </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased">
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md border-b border-surface-container-high">
+  <div class="h-16 w-full px-6 lg:px-12 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <a class="flex items-center gap-2 group" href="index.html">
+        <div class="w-7 h-7 bg-primary flex items-center justify-center text-on-primary font-bold text-sm transition-transform group-hover:scale-95">
+          SK
+        </div>
+        <div class="flex flex-col">
+          <span class="font-semibold text-sm text-primary tracking-tight">SKgate</span>
+          <span class="text-[10px] text-outline-variant font-mono uppercase tracking-wider -mt-0.5">@kirill_skoch/v0.4</span>
+        </div>
+      </a>
+      <div class="h-6 w-px bg-surface-container-high hidden xl:block"></div>
+      <nav class="hidden xl:flex items-center gap-1">
+        <a href="index.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Dashboard</a>
+        <a href="playground.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Playground</a>
+        <a href="docs.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Docs</a>
+        <a href="install.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider bg-surface-container-high text-primary">Install</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <button id="theme-toggle" class="px-2 py-1.5 text-xs font-mono uppercase tracking-wider text-primary hover:bg-surface-container border border-surface-container-high transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm" id="theme-icon">light_mode</span>
+        <span class="hidden sm:inline" id="theme-label">Light</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="w-full pt-16 bg-surface min-h-screen">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12 py-12">
+
+    <!-- Header -->
+    <div class="mb-12">
+      <span class="text-[10px] font-mono text-outline uppercase tracking-wider">// Quick Setup Guide</span>
+      <h1 class="text-4xl lg:text-5xl text-primary font-bold uppercase tracking-tight font-display mt-2">Installation</h1>
+      <p class="text-lg text-on-surface-variant mt-4">Get SKgate CLI up and running in minutes</p>
+    </div>
+
+    <!-- Prerequisites -->
+    <section class="mb-12 p-6 bg-surface-container-low border border-surface-container-high rounded-lg">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined">check_circle</span>
+        Prerequisites
+      </h2>
+      <ul class="space-y-2 text-on-surface-variant">
+        <li class="flex items-start gap-2">
+          <span class="text-primary">•</span>
+          <span><strong>Python 3.10+</strong> - <a href="https://www.python.org/downloads/" class="text-primary hover:underline">Download here</a></span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-primary">•</span>
+          <span><strong>pip</strong> - Usually comes with Python</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-primary">•</span>
+          <span><strong>Git</strong> (optional) - For cloning repository</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Installation Options -->
+    <div class="grid md:grid-cols-2 gap-6 mb-12">
+      <!-- Windows -->
+      <div class="bg-surface-container-low border border-surface-container-high rounded-lg p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="material-symbols-outlined text-3xl text-primary">computer</span>
+          <h3 class="text-2xl text-primary font-bold uppercase font-display">Windows</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex items-center mb-2">
+              <span class="step-number">1</span>
+              <span class="text-sm font-mono text-on-surface">Clone Repository</span>
+            </div>
+            <div class="code-block">
+              <code>git clone https://github.com/coffe-skelet/Sqgateway.git
+cd Sqgateway</code>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center mb-2">
+              <span class="step-number">2</span>
+              <span class="text-sm font-mono text-on-surface">Run Installer</span>
+            </div>
+            <div class="code-block">
+              <code>.\install.bat</code>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center mb-2">
+              <span class="step-number">3</span>
+              <span class="text-sm font-mono text-on-surface">Restart Terminal</span>
+            </div>
+            <p class="text-sm text-on-surface-variant">Close and reopen PowerShell/CMD</p>
+          </div>
+
+          <div>
+            <div class="flex items-center mb-2">
+              <span class="step-number">4</span>
+              <span class="text-sm font-mono text-on-surface">Verify</span>
+            </div>
+            <div class="code-block">
+              <code>sqz --version</code>
+            </div>
+          </div>
+        </div>
+
+        <a href="https://github.com/coffe-skelet/Sqgateway/blob/main/install.bat" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary text-on-primary text-sm font-mono uppercase tracking-wider hover:bg-surface-container-highest hover:text-primary transition-all">
+          <span class="material-symbols-outlined text-sm">download</span>
+          Download install.bat
+        </a>
+      </div>
+
+      <!-- Linux/macOS -->
+      <div class="bg-surface-container-low border border-surface-container-high rounded-lg p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="material-symbols-outlined text-3xl text-primary">terminal</span>
+          <h3 class="text-2xl text-primary font-bold uppercase font-display">Linux / macOS</h3>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex items-center mb-2">
+              <span class="step-number">1</span>
+              <span class="text-sm font-mono text-on-surface">Clone Repository</span>
+            </div>
+            <div class="code-block">
+              <code>git clone https://github.com/coffe-skelet/Sqgateway.git
+cd Sqgateway</code>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center mb-2">
+              <span class="step-number">2</span>
+              <span class="text-sm font-mono text-on-surface">Run Installer</span>
+            </div>
+            <div class="code-block">
+              <code>chmod +x install.sh
+./install.sh</code>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center mb-2">
+              <span class="step-number">3</span>
+              <span class="text-sm font-mono text-on-surface">Reload Shell</span>
+            </div>
+            <div class="code-block">
+              <code>source ~/.bashrc  # or ~/.zshrc</code>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center mb-2">
+              <span class="step-number">4</span>
+              <span class="text-sm font-mono text-on-surface">Verify</span>
+            </div>
+            <div class="code-block">
+              <code>sqz --version</code>
+            </div>
+          </div>
+        </div>
+
+        <a href="https://github.com/coffe-skelet/Sqgateway/blob/main/install.sh" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary text-on-primary text-sm font-mono uppercase tracking-wider hover:bg-surface-container-highest hover:text-primary transition-all">
+          <span class="material-symbols-outlined text-sm">download</span>
+          Download install.sh
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Setup -->
+    <section class="mb-12 p-6 bg-surface-container-lowest border border-primary/20 rounded-lg">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined">rocket_launch</span>
+        Quick Setup After Installation
+      </h2>
+
+      <div class="space-y-4">
+        <div class="code-block">
+          <code># Initialize configuration
+sqz install
+
+# Add your Gemini API key
+sqz keys add mykey YOUR_GEMINI_API_KEY
+
+# Start gateway
+sqz start --daemon
+
+# Try chat
+sqz chat</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- Troubleshooting -->
+    <section class="mb-12">
+      <h2 class="text-2xl text-primary font-bold uppercase tracking-tight font-display mb-6">Troubleshooting</h2>
+
+      <div class="space-y-4">
+        <div class="bg-surface-container-low border-l-4 border-primary p-4 rounded">
+          <h4 class="font-bold text-primary mb-2">Problem: "sqz: command not found"</h4>
+          <p class="text-sm text-on-surface-variant mb-2">Solution:</p>
+          <ul class="text-sm text-on-surface-variant space-y-1 ml-4">
+            <li>• Restart your terminal/PowerShell</li>
+            <li>• Check if Python Scripts is in PATH</li>
+            <li>• Try: <code class="text-primary">python -m sqz_cli.main --version</code></li>
+          </ul>
+        </div>
+
+        <div class="bg-surface-container-low border-l-4 border-secondary p-4 rounded">
+          <h4 class="font-bold text-primary mb-2">Problem: "pyproject.toml not found"</h4>
+          <p class="text-sm text-on-surface-variant mb-2">Solution:</p>
+          <ul class="text-sm text-on-surface-variant space-y-1 ml-4">
+            <li>• Make sure you're in the Sqgateway directory</li>
+            <li>• Run: <code class="text-primary">cd path/to/Sqgateway</code></li>
+            <li>• Verify: <code class="text-primary">ls pyproject.toml</code> (Linux/macOS) or <code class="text-primary">dir pyproject.toml</code> (Windows)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Resources -->
+    <section class="grid md:grid-cols-3 gap-4 mb-12">
+      <a href="https://github.com/coffe-skelet/Sqgateway/blob/main/INSTALL.md" class="p-6 bg-surface-container-low border border-surface-container-high rounded-lg hover:border-primary transition-all">
+        <span class="material-symbols-outlined text-3xl text-primary mb-2">description</span>
+        <h4 class="font-bold text-primary mb-1">Full Guide</h4>
+        <p class="text-sm text-on-surface-variant">Complete installation docs</p>
+      </a>
+
+      <a href="https://github.com/coffe-skelet/Sqgateway" class="p-6 bg-surface-container-low border border-surface-container-high rounded-lg hover:border-primary transition-all">
+        <span class="material-symbols-outlined text-3xl text-primary mb-2">code</span>
+        <h4 class="font-bold text-primary mb-1">GitHub</h4>
+        <p class="text-sm text-on-surface-variant">View source code</p>
+      </a>
+
+      <a href="docs.html" class="p-6 bg-surface-container-low border border-surface-container-high rounded-lg hover:border-primary transition-all">
+        <span class="material-symbols-outlined text-3xl text-primary mb-2">menu_book</span>
+        <h4 class="font-bold text-primary mb-1">Documentation</h4>
+        <p class="text-sm text-on-surface-variant">API reference & guides</p>
+      </a>
+    </section>
+
+  </div>
+</main>
+
+<script src="assets/app.js"></script>
+<script src="assets/i18n.js"></script>
+
+</body>
+</html>
