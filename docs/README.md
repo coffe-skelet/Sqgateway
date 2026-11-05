@@ -1,44 +1,19 @@
-# Squeeze Gateway — GitHub Pages Deployment
+# Squeeze Gateway — Web Interface
 
-🌐 **Live Demo:** `https://YOUR_USERNAME.github.io/squeeze-gateway/`
-
-Современный веб-интерфейс для Squeeze Gateway с поддержкой светлой и тёмной тем, мультиязычностью и live-метриками. Работает как самостоятельно (demo mode), так и с подключением к реальному gateway.
+Современный веб-интерфейс для Squeeze Gateway с поддержкой светлой и тёмной тем, мультиязычностью и live-метриками.
 
 ## Функции
 
-## 🎯 Режимы работы
+### ✅ Реализовано
 
-### Demo Mode (GitHub Pages)
-Автоматически активируется при доступе через GitHub Pages:
-- ✅ Все страницы работают без backend
-- ✅ Демонстрационные метрики и статистика
-- ✅ Интерактивные элементы UI функциональны
-- ✅ Четкие индикаторы демо-режима
-
-### Full Mode (с Gateway)
-При подключении к работающему gateway:
-- 🔥 Live метрики в реальном времени
-- 🔥 Интерактивный playground
-- 🔥 Реальная статистика оптимизации
-- 🔥 Профиль с вашими данными
-
-### ✅ Реализованные страницы
-
-- **Dashboard** (`index.html`) — Live-метрики, статистика запросов, terminal feed
-- **Playground** (`playground.html`) — Интерактивная песочница для тестирования
-- **Documentation** (`docs.html`) — Полная документация API и модулей
-- **Profile** (`profile.html`) — Страница профиля пользователя с настройками
-- **About** (`about.html`) — Информация о проекте и команде
-- **Login** (`login.html`) — OAuth авторизация (опционально)
-- **Project** (`project.html`) — Информация о проекте и настройках
-
-### ✅ Работающие функции
-
-- ✅ **Переключение тем** — Dark/Light mode с сохранением в localStorage
-- ✅ **Мультиязычность** — EN/RU переключение
-- ✅ **Demo Mode Detection** — Автоматическое определение GitHub Pages
-- ✅ **Gateway Status** — Индикатор состояния подключения
-- ✅ **Responsive Design** — Адаптивная верстка для всех устройств
+- **Переключение тем** — Светлая и тёмная темы с плавными переходами
+- **Мультиязычность** — Поддержка английского и русского языков
+- **Dashboard** — Live-метрики, статистика запросов, terminal feed
+- **Playground** — Интерактивная песочница для тестирования gateway
+- **Documentation** — Полная документация API и модулей
+- **Profile** — Страница профиля пользователя с настройками
+- **About** — Информация о проекте и команде
+- **Login** — Страница входа (демо-режим)
 
 ### 🎨 Дизайн-система
 
@@ -52,53 +27,24 @@
 - Material Design 3 inspired палитра
 - Поддержка светлой и тёмной тем
 
-## 🚀 Подключение к Gateway
+### 🚀 Запуск
 
-### Вариант 1: Локальный Gateway
-
+#### Вариант 1: Python HTTP Server (для разработки)
 ```bash
-# Установить CLI
-pip install squeeze-gateway
-
-# Настроить и запустить
-sqz install
-sqz config set api_key YOUR_GEMINI_API_KEY
-sqz start
-
-# Открыть в браузере
-open http://localhost:8082
+python -m http.server 8080 --directory web
 ```
 
-### Вариант 2: Подключить GitHub Pages к Gateway
-
-Если у вас gateway запущен локально или на сервере:
-
-**Через localStorage (консоль браузера):**
-```javascript
-// Установить URL вашего gateway
-localStorage.setItem('sqg_api', 'http://localhost:8082');
-// или для удаленного сервера
-localStorage.setItem('sqg_api', 'https://your-gateway.com');
-
-// Перезагрузить страницу
-location.reload();
-```
-
-**⚠️ Важно:** Убедитесь, что gateway разрешает CORS для GitHub Pages домена.
-
-### Вариант 3: Развернуть полностью локально
-
+#### Вариант 2: С бэкендом Gateway
 ```bash
-# Клонировать репозиторий
-git clone https://github.com/YOUR_USERNAME/squeeze-gateway.git
-cd squeeze-gateway
-
-# Запустить gateway (включает web UI)
-sqz start
-
-# Или использовать uvicorn напрямую
+# Запустить gateway на порту 8082
 uvicorn server:app --port 8082
+
+# Открыть web/index.html в браузере
+# или запустить отдельный веб-сервер
 ```
+
+#### Вариант 3: Live Server (VS Code)
+Откройте `web/index.html` через Live Server расширение
 
 ### 📂 Структура
 
@@ -119,36 +65,20 @@ web/
     └── favicon.svg    # Иконка сайта
 ```
 
-## 🔧 Настройка GitHub Pages
+### 🔧 API Integration
 
-### Включить GitHub Pages
+Web-интерфейс работает с Squeeze Gateway API:
 
-1. Перейдите в **Settings** вашего репозитория
-2. Откройте секцию **Pages**
-3. Установите:
-   - **Source:** Deploy from a branch
-   - **Branch:** main
-   - **Folder:** /docs
-4. Сохраните настройки
-5. Подождите 1-2 минуты для деплоя
-6. Откройте `https://YOUR_USERNAME.github.io/squeeze-gateway/`
+**Endpoints:**
+- `GET /health` — Проверка состояния gateway
+- `GET /api/summary` — Сводная статистика
+- `GET /metrics?limit=N` — Последние N запросов
+- `POST /v1beta/models/{model}:generateContent` — Gemini-совместимый API
 
-### Файл .nojekyll
-
-Файл `.nojekyll` уже включен в `docs/` и отключает Jekyll обработку. Это важно для корректной работы всех ассетов.
-
-### Обновление GitHub Pages
-
-Любые изменения в `docs/` автоматически деплоятся после push в `main`:
-
-```bash
-# Синхронизировать web → docs
-cp -r web/* docs/
-
-# Закоммитить и запушить
-git add docs/
-git commit -m "Update GitHub Pages"
-git push origin main
+**Настройка gateway URL:**
+По умолчанию использует `http://localhost:8082`. Для GitHub Pages можно настроить через:
+```javascript
+localStorage.setItem('sqg_api', 'https://your-gateway-url.com');
 ```
 
 ### 🌐 Локализация
@@ -209,65 +139,45 @@ Dashboard отображает метрики в реальном времени
 
 ---
 
-## 🐛 Troubleshooting
+## Разработка
 
-### Проблема: Темы не переключаются
-**Решение:**
-1. Откройте консоль браузера (F12)
-2. Очистите localStorage: `localStorage.clear()`
-3. Hard refresh: Ctrl+Shift+R (⌘+Shift+R на Mac)
-4. Проверьте что `theme.css` загружается
+### Добавление новой страницы
 
-### Проблема: Язык не меняется
-**Решение:**
-1. Проверьте что `i18n.js` загружен
-2. Откройте консоль и проверьте `window.i18n`
-3. Попробуйте: `window.i18n.setLanguage('ru')`
+1. Создайте `new-page.html` по шаблону существующих
+2. Добавьте подключение `assets/theme.css`
+3. Укажите `data-page="new-page"` в `<body>`
+4. Добавьте переводы в `assets/i18n.js`
+5. При необходимости добавьте логику в `assets/app.js`
 
-### Проблема: Gateway не подключается
-**Решение:**
-1. Проверьте CORS headers на gateway
-2. Убедитесь что gateway запущен и доступен
-3. Проверьте URL в localStorage: `localStorage.getItem('sqg_api')`
-4. Попробуйте открыть gateway URL напрямую в браузере
+### Добавление нового перевода
 
-### Проблема: GitHub Pages показывает 404
-**Решение:**
-1. Проверьте что `.nojekyll` файл существует в `docs/`
-2. Убедитесь что Settings → Pages настроены на `/docs`
-3. Подождите 2-3 минуты после push
-4. Проверьте что файлы существуют в `docs/` директории
+Отредактируйте `assets/i18n.js`:
+```javascript
+const translations = {
+  en: {
+    your_key: "English text",
+  },
+  ru: {
+    your_key: "Русский текст",
+  }
+};
+```
 
-### Проблема: Стили не применяются
-**Решение:**
-1. Проверьте что все CSS файлы загружаются (Network tab в DevTools)
-2. Убедитесь что пути к ассетам относительные
-3. Hard refresh страницы
-4. Проверьте консоль на ошибки
+Используйте в HTML:
+```html
+<span data-i18n="your_key">Fallback text</span>
+```
 
----
+### Изменение цветовой схемы
 
-## 📖 Дополнительная документация
-
-- [Main README](../README.md) — Обзор проекта и технические детали
-- [QUICKSTART](../QUICKSTART.md) — Быстрый старт для всех сценариев
-- [CLI README](../CLI_README.md) — Документация CLI команд
-- [CONTRIBUTING](../CONTRIBUTING.md) — Гайд для контрибьюторов
-
-## 🤝 Contributing
-
-Нашли баг или хотите улучшить веб-интерфейс?
-
-1. **Issues:** [GitHub Issues](https://github.com/kirill-skoch/squeeze-gateway/issues)
-2. **Pull Requests:** См. [Contributing Guide](../CONTRIBUTING.md)
-3. **Telegram:** [@kirill_skoch](https://t.me/kirill_skoch)
-
-## 📄 License
-
-MIT License — см. [LICENSE](../LICENSE) файл
+Отредактируйте CSS-переменные в `assets/theme.css`:
+```css
+:root { /* dark theme */ }
+.light { /* light theme */ }
+```
 
 ---
 
-**Сделано с ❤️ by [@kirill_skoch](https://t.me/kirill_skoch)**  
-**Версия:** 0.4.0  
-**Последнее обновление:** 2026-11-05
+**Автор:** @kirill_skoch  
+**Лицензия:** MIT  
+**Версия:** 0.3
