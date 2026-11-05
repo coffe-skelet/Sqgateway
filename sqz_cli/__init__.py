@@ -1,4 +1,20 @@
-"""Squeeze Gateway CLI - Terminal agent for LLM token optimization"""
+"""Squeeze Gateway package and SDK exports."""
 
-__version__ = "0.3.0"
-__author__ = "Kirill Skoch"
+from .sdk import (
+    ChatResponse,
+    CompressionMode,
+    OptimizationMetrics,
+    SqueezeClient,
+    ThinkingLevel,
+    chat,
+)
+
+__all__ = [
+    "SqueezeClient",
+    "CompressionMode",
+    "ThinkingLevel",
+    "OptimizationMetrics",
+    "ChatResponse",
+    "chat",
+]
+__version__ = "0.4.0"

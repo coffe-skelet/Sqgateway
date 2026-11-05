@@ -8,7 +8,6 @@ import sys
 import argparse
 import asyncio
 from pathlib import Path
-from typing import Optional
 
 from .commands import (
     install_command,
@@ -18,8 +17,12 @@ from .commands import (
     status_command,
     chat_command,
     stats_command,
+    proxy_command,
+    keys_command,
 )
-from .utils import logger, print_banner
+from .utils import logger, print_banner, set_config_dir
+
+VERSION = "0.4.0"
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -43,7 +46,7 @@ For more information: https://github.com/kirill-skoch/squeeze-gateway
     parser.add_argument(
         '--version',
         action='version',
-        version='%(prog)s 0.3.0'
+        version=f'%(prog)s {VERSION}'
     )
 
     parser.add_argument(
@@ -79,8 +82,8 @@ For more information: https://github.com/kirill-skoch/squeeze-gateway
 
     # Start command
     start_parser = subparsers.add_parser('start', help='Start gateway server')
-    start_parser.add_argument('--port', type=int, default=8082, help='Server port (default: 8082)')
-    start_parser.add_argument('--host', default='127.0.0.1', help='Server host (default: 127.0.0.1)')
+    start_parser.add_argument('--port', type=int, help='Server port (default from config)')
+    start_parser.add_argument('--host', help='Server host (default from config)')
     start_parser.add_argument('--daemon', '-d', action='store_true', help='Run in background')
 
     # Stop command
@@ -91,9 +94,10 @@ For more information: https://github.com/kirill-skoch/squeeze-gateway
 
     # Chat command
     chat_parser = subparsers.add_parser('chat', help='Interactive chat mode')
-    chat_parser.add_argument('--model', default='gemini-3.6-flash', help='LLM model to use')
-    chat_parser.add_argument('--mode', choices=['auto', 'cpp', 'llm', 'off'], default='auto', help='Compression mode')
-    chat_parser.add_argument('--thinking', choices=['auto', 'low', 'medium', 'high', '-'], default='auto', help='Thinking level')
+    chat_parser.add_argument('--model', help='LLM model to use')
+    chat_parser.add_argument('--mode', choices=['auto', 'cpp', 'llm', 'off'], help='Compression mode')
+    chat_parser.add_argument('--thinking', choices=['auto', 'low', 'medium', 'high', '-'], help='Thinking level')
+    chat_parser.add_argument('message', nargs='*', help='One-shot prompt; omit for interactive chat')
 
     # Stats command
     stats_parser = subparsers.add_parser('stats', help='View optimization statistics')
@@ -104,6 +108,29 @@ For more information: https://github.com/kirill-skoch/squeeze-gateway
     proxy_parser = subparsers.add_parser('proxy', help='Quick proxy setup for existing code')
     proxy_parser.add_argument('--port', type=int, default=8082, help='Proxy port')
     proxy_parser.add_argument('--show-url', action='store_true', help='Show proxy URL to use')
+    proxy_parser.add_argument('--host', help='Server host (default from config)')
+    proxy_parser.add_argument('--daemon', '-d', action='store_true', help='Run in background')
+
+    # Keys command
+    keys_parser = subparsers.add_parser('keys', help='Manage API keys')
+    keys_subparsers = keys_parser.add_subparsers(dest='keys_action')
+
+    keys_list = keys_subparsers.add_parser('list', help='List all API keys')
+
+    keys_add = keys_subparsers.add_parser('add', help='Add new API key')
+    keys_add.add_argument('name', help='Key name (e.g., "personal", "work")')
+    keys_add.add_argument('key', help='API key value')
+    keys_add.add_argument('--provider', default='gemini', help='Provider (default: gemini)')
+    keys_add.add_argument('--description', default='', help='Optional description')
+
+    keys_remove = keys_subparsers.add_parser('remove', help='Remove API key')
+    keys_remove.add_argument('name', help='Key name to remove')
+
+    keys_select = keys_subparsers.add_parser('select', help='Select active API key')
+    keys_select.add_argument('name', help='Key name to activate')
+
+    keys_show = keys_subparsers.add_parser('show', help='Show API key details')
+    keys_show.add_argument('name', help='Key name to show')
 
     return parser
 
@@ -136,6 +163,12 @@ async def main_async(args: argparse.Namespace) -> int:
     elif args.command == 'stats':
         return await stats_command(args)
 
+    elif args.command == 'proxy':
+        return await proxy_command(args)
+
+    elif args.command == 'keys':
+        return await keys_command(args)
+
     else:
         # No command specified - show banner and help
         print_banner()
@@ -147,6 +180,7 @@ def main():
     """CLI entry point"""
     parser = create_parser()
     args = parser.parse_args()
+    set_config_dir(args.config_dir)
 
     try:
         exit_code = asyncio.run(main_async(args))

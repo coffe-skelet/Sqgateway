@@ -1,23 +1,19 @@
-"""
-Squeeze Gateway SDK - Package exports
-"""
+"""Backward-compatible SDK imports."""
 
-from .squeeze_sdk import (
-    SqueezeClient,
-    CompressionMode,
-    ThinkingLevel,
-    OptimizationMetrics,
+from .sdk_impl import (
     ChatResponse,
+    CompressionMode,
+    OptimizationMetrics,
+    SqueezeClient,
+    ThinkingLevel,
     chat,
 )
 
 __all__ = [
-    'SqueezeClient',
-    'CompressionMode',
-    'ThinkingLevel',
-    'OptimizationMetrics',
-    'ChatResponse',
-    'chat',
+    "SqueezeClient",
+    "CompressionMode",
+    "ThinkingLevel",
+    "OptimizationMetrics",
+    "ChatResponse",
+    "chat",
 ]
-
-__version__ = '0.3.0'
