@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Squeeze Gateway — About</title>
+  <meta name="description" content="Technical stack, architecture, and roadmap of Squeeze Gateway">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/theme.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            body: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2a2c; border-radius: 4px; }
+
+    .light {
+      --primary: #2f3131;
+      --on-primary: #ffffff;
+      --background: #fafafa;
+      --on-background: #1c1b1d;
+      --surface: #ffffff;
+      --on-surface: #1c1b1d;
+      --surface-container: #f3f3f4;
+      --surface-container-low: #f7f7f8;
+      --surface-container-lowest: #ffffff;
+      --surface-container-high: #ededee;
+      --on-surface-variant: #44474a;
+      --outline: #74777a;
+    }
+  </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased" data-page="project">
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md border-b border-surface-container-high">
+  <div class="h-16 w-full px-6 lg:px-12 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <a class="flex items-center gap-2 group" href="index.html">
+        <div class="w-7 h-7 bg-primary flex items-center justify-center text-on-primary font-bold text-sm transition-transform group-hover:scale-95">SQ</div>
+        <div class="flex flex-col">
+          <span class="font-semibold text-sm text-primary tracking-tight">Squeeze Gateway</span>
+          <span class="text-[10px] text-outline-variant font-mono uppercase tracking-wider -mt-0.5">@kirill_skoch/v0.3</span>
+        </div>
+      </a>
+      <div class="h-6 w-px bg-surface-container-high hidden xl:block"></div>
+      <nav class="hidden xl:flex items-center gap-1">
+        <a href="index.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Dashboard</a>
+        <a href="playground.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Playground</a>
+        <a href="docs.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">Docs</a>
+        <a href="about.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all">About</a>
+        <a href="project.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider bg-surface-container-high text-primary">Project</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="profile.html" class="px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm">account_circle</span>
+        <span class="hidden sm:inline">Profile</span>
+      </a>
+      <button id="theme-toggle" class="px-2 py-1.5 text-xs font-mono uppercase tracking-wider text-primary hover:bg-surface-container border border-surface-container-high transition-all flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-sm" id="theme-icon">light_mode</span>
+        <span class="hidden sm:inline" id="theme-label">Light</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="w-full pt-16 bg-surface min-h-screen">
+  <div class="max-w-5xl mx-auto px-6 lg:px-12 py-12">
+
+    <section class="mb-16">
+      <span class="text-[10px] font-mono text-outline uppercase tracking-wider">// Open Source · MIT</span>
+      <h1 class="text-3xl lg:text-4xl text-primary font-bold uppercase tracking-tight font-display mt-2 mb-4">
+        Infrastructure, Not Another Chat Wrapper
+      </h1>
+      <p class="text-base text-on-surface-variant max-w-3xl leading-relaxed">
+        Squeeze Gateway is a transparent proxy between your application and LLM provider. It doesn't change API format and doesn't require rewriting the client: just replace base URL. Everything it does is measured and logged.
+      </p>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="mb-16">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-6">Technical Stack</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="material-symbols-outlined text-primary text-2xl">code</span>
+            <h3 class="text-base font-bold text-primary uppercase font-display">Core Engine</h3>
+          </div>
+          <div class="space-y-2 text-sm text-on-surface-variant">
+            <div class="flex justify-between"><span>Language</span><span class="font-mono text-primary">C++17</span></div>
+            <div class="flex justify-between"><span>Binding</span><span class="font-mono text-primary">pybind11</span></div>
+            <div class="flex justify-between"><span>Build</span><span class="font-mono text-primary">CMake 3.24+</span></div>
+            <div class="flex justify-between"><span>Performance</span><span class="font-mono text-primary">Microseconds</span></div>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="material-symbols-outlined text-primary text-2xl">cloud</span>
+            <h3 class="text-base font-bold text-primary uppercase font-display">Gateway Server</h3>
+          </div>
+          <div class="space-y-2 text-sm text-on-surface-variant">
+            <div class="flex justify-between"><span>Runtime</span><span class="font-mono text-primary">Python 3.12+</span></div>
+            <div class="flex justify-between"><span>Framework</span><span class="font-mono text-primary">FastAPI 0.162</span></div>
+            <div class="flex justify-between"><span>Server</span><span class="font-mono text-primary">Uvicorn</span></div>
+            <div class="flex justify-between"><span>HTTP Client</span><span class="font-mono text-primary">httpx</span></div>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="material-symbols-outlined text-primary text-2xl">language</span>
+            <h3 class="text-base font-bold text-primary uppercase font-display">Frontend</h3>
+          </div>
+          <div class="space-y-2 text-sm text-on-surface-variant">
+            <div class="flex justify-between"><span>Styling</span><span class="font-mono text-primary">Tailwind CSS</span></div>
+            <div class="flex justify-between"><span>JavaScript</span><span class="font-mono text-primary">Vanilla ES6</span></div>
+            <div class="flex justify-between"><span>Icons</span><span class="font-mono text-primary">Material Symbols</span></div>
+            <div class="flex justify-between"><span>Fonts</span><span class="font-mono text-primary">Syne, Space Grotesk</span></div>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="material-symbols-outlined text-primary text-2xl">storage</span>
+            <h3 class="text-base font-bold text-primary uppercase font-display">Data Layer</h3>
+          </div>
+          <div class="space-y-2 text-sm text-on-surface-variant">
+            <div class="flex justify-between"><span>Metrics</span><span class="font-mono text-primary">JSONL logs</span></div>
+            <div class="flex justify-between"><span>Config</span><span class="font-mono text-primary">.env files</span></div>
+            <div class="flex justify-between"><span>Cache</span><span class="font-mono text-primary">Planned</span></div>
+            <div class="flex justify-between"><span>Database</span><span class="font-mono text-primary">None (stateless)</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="mb-16">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-6">Architecture</h2>
+      <div class="bg-surface-container-lowest border border-surface-container-high rounded-lg p-6">
+        <pre class="font-mono text-xs text-on-surface-variant overflow-x-auto"><code>[Application] ──HTTP──► [Squeeze Gateway :8082] ──HTTPS──► [LLM Provider]
+                          │
+      ┌───────────────────┼─────────────────────┐
+      ▼                   ▼                     ▼
+  1. INPUT COMPRESSION  2. THINKING DEPTH    3. HONEST METRICS
+     C++ heuristic        Classifier            baseline (countTokens)
+     + LLM squeeze        → thinkingLevel       vs actual vs aux
+     (for long ≥2k)       Conservative          JSONL + /stats</code></pre>
+      </div>
+    </section>
+
+    <!-- Roadmap -->
+    <section class="mb-16">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-6">Roadmap</h2>
+      <div class="space-y-3">
+        <div class="flex items-start gap-3 p-4 bg-surface-container-low border-l-4 border-green-500">
+          <span class="material-symbols-outlined text-green-500">check_circle</span>
+          <div>
+            <div class="font-bold text-sm text-primary">Transparent proxy + 503/429 retries</div>
+            <div class="text-xs text-on-surface-variant">Complete with honest error handling</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 bg-surface-container-low border-l-4 border-green-500">
+          <span class="material-symbols-outlined text-green-500">check_circle</span>
+          <div>
+            <div class="font-bold text-sm text-primary">Honest metrics: baseline / actual / aux</div>
+            <div class="text-xs text-on-surface-variant">Real savings measurement</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 bg-surface-container-low border-l-4 border-green-500">
+          <span class="material-symbols-outlined text-green-500">check_circle</span>
+          <div>
+            <div class="font-bold text-sm text-primary">C++ core: heuristic compression</div>
+            <div class="text-xs text-on-surface-variant">Microsecond-level performance</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 bg-surface-container-low border-l-4 border-green-500">
+          <span class="material-symbols-outlined text-green-500">check_circle</span>
+          <div>
+            <div class="font-bold text-sm text-primary">Thinking depth controller (auto)</div>
+            <div class="text-xs text-on-surface-variant">Measured -46% on simple queries</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 bg-surface-container-low border-l-4 border-green-500">
+          <span class="material-symbols-outlined text-green-500">check_circle</span>
+          <div>
+            <div class="font-bold text-sm text-primary">LLM compression with ROI threshold</div>
+            <div class="text-xs text-on-surface-variant">Only for prompts ≥2000 chars</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 bg-surface-container-low border-l-4 border-green-500">
+          <span class="material-symbols-outlined text-green-500">check_circle</span>
+          <div>
+            <div class="font-bold text-sm text-primary">Web dashboard on live data + GitHub Pages</div>
+            <div class="text-xs text-on-surface-variant">Real metrics, not mockups</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 bg-surface-container-low border-l-4 border-amber-500">
+          <span class="material-symbols-outlined text-amber-500">pending</span>
+          <div>
+            <div class="font-bold text-sm text-primary">Full benchmark 30×3 (C++ / LLM / combo) + graphs</div>
+            <div class="text-xs text-on-surface-variant">In progress</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 bg-surface-container-low border-l-4 border-outline">
+          <span class="material-symbols-outlined text-outline">schedule</span>
+          <div>
+            <div class="font-bold text-sm text-primary">Universal layer: OpenAI format → any models</div>
+            <div class="text-xs text-on-surface-variant">Planned</div>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 bg-surface-container-low border-l-4 border-outline">
+          <span class="material-symbols-outlined text-outline">schedule</span>
+          <div>
+            <div class="font-bold text-sm text-primary">Semantic cache & router "light queries → lite model"</div>
+            <div class="text-xs text-on-surface-variant">Planned</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Author -->
+    <section class="mb-16">
+      <h2 class="text-xl text-primary font-bold uppercase tracking-tight font-display mb-6">Author & Contact</h2>
+      <div class="bg-surface-container-low p-6 border border-surface-container-high rounded-lg">
+        <div class="flex items-start gap-4">
+          <div class="w-16 h-16 bg-primary rounded-lg flex items-center justify-center text-on-primary font-bold text-2xl flex-shrink-0">
+            SQ
+          </div>
+          <div class="flex-1">
+            <h3 class="text-base font-bold text-primary mb-1">@kirill_skoch</h3>
+            <p class="text-sm text-on-surface-variant mb-3">
+              Initial prototype and measurements — project author (2026). Developed as part of school portfolio for university admission.
+            </p>
+            <div class="flex flex-wrap gap-3">
+              <a href="https://t.me/kirill_skoch" class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container hover:bg-surface-container-high border border-surface-container-high rounded text-sm text-primary transition-colors">
+                <span class="material-symbols-outlined text-base">send</span>
+                Telegram
+              </a>
+              <a href="https://github.com/kirill-skoch" class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container hover:bg-surface-container-high border border-surface-container-high rounded text-sm text-primary transition-colors">
+                <span class="material-symbols-outlined text-base">code</span>
+                GitHub Profile
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="w-full bg-surface-container-lowest border-t border-surface-container-high">
+  <div class="w-full px-6 lg:px-12 py-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <span class="text-xs font-mono text-on-surface-variant">Squeeze Gateway © 2026 • MIT License</span>
+      <div class="flex items-center gap-6">
+        <a href="index.html" class="text-xs font-mono text-on-surface-variant hover:text-primary transition-colors uppercase">Dashboard</a>
+        <a href="playground.html" class="text-xs font-mono text-on-surface-variant hover:text-primary transition-colors uppercase">Playground</a>
+        <a href="docs.html" class="text-xs font-mono text-on-surface-variant hover:text-primary transition-colors uppercase">Docs</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

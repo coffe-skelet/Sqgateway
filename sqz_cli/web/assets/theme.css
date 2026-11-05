@@ -1,0 +1,114 @@
+/* Squeeze Gateway — Theme System with CSS Variables */
+
+:root {
+  /* Dark theme (default) */
+  --color-primary: #ffffff;
+  --color-on-primary: #2f3131;
+  --color-secondary: #c6c6cf;
+  --color-background: #131315;
+  --color-on-background: #e5e1e4;
+  --color-surface: #131315;
+  --color-on-surface: #e5e1e4;
+  --color-surface-container: #201f21;
+  --color-surface-container-low: #1c1b1d;
+  --color-surface-container-lowest: #0e0e10;
+  --color-surface-container-high: #2a2a2c;
+  --color-surface-container-highest: #353437;
+  --color-surface-bright: #39393b;
+  --color-surface-dim: #131315;
+  --color-outline: #8e9192;
+  --color-outline-variant: #444748;
+  --color-on-surface-variant: #c4c7c8;
+}
+
+/* Light theme */
+.light {
+  --color-primary: #2f3131;
+  --color-on-primary: #ffffff;
+  --color-secondary: #5f6368;
+  --color-background: #fafafa;
+  --color-on-background: #1c1b1d;
+  --color-surface: #ffffff;
+  --color-on-surface: #1c1b1d;
+  --color-surface-container: #f3f3f4;
+  --color-surface-container-low: #f7f7f8;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #ededee;
+  --color-surface-container-highest: #e8e8e9;
+  --color-surface-bright: #fafafa;
+  --color-surface-dim: #f3f3f4;
+  --color-outline: #74777a;
+  --color-outline-variant: #c4c7c8;
+  --color-on-surface-variant: #44474a;
+}
+
+/* Apply CSS variables to elements */
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+}
+
+.bg-background { background-color: var(--color-background) !important; }
+.bg-surface { background-color: var(--color-surface) !important; }
+.bg-surface-container { background-color: var(--color-surface-container) !important; }
+.bg-surface-container-low { background-color: var(--color-surface-container-low) !important; }
+.bg-surface-container-lowest { background-color: var(--color-surface-container-lowest) !important; }
+.bg-surface-container-high { background-color: var(--color-surface-container-high) !important; }
+.bg-surface-container-highest { background-color: var(--color-surface-container-highest) !important; }
+.bg-surface-bright { background-color: var(--color-surface-bright) !important; }
+.bg-surface-dim { background-color: var(--color-surface-dim) !important; }
+
+.text-primary { color: var(--color-primary) !important; }
+.text-on-primary { color: var(--color-on-primary) !important; }
+.text-secondary { color: var(--color-secondary) !important; }
+.text-on-surface { color: var(--color-on-surface) !important; }
+.text-on-surface-variant { color: var(--color-on-surface-variant) !important; }
+.text-on-background { color: var(--color-on-background) !important; }
+.text-outline { color: var(--color-outline) !important; }
+.text-outline-variant { color: var(--color-outline-variant) !important; }
+
+.border-surface-container-high { border-color: var(--color-surface-container-high) !important; }
+.border-surface-container { border-color: var(--color-surface-container) !important; }
+.border-outline { border-color: var(--color-outline) !important; }
+.border-outline-variant { border-color: var(--color-outline-variant) !important; }
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Override transitions for specific elements */
+button, a {
+  transition: all 0.2s ease;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface-container-low);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-container-high);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline);
+}
+
+/* Selection colors */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+/* Focus states */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

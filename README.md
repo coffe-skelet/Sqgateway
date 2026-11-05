@@ -70,6 +70,73 @@ Squeeze Gateway режет обвязку, не трогая суть задач
 
 Цель проекта **(−30 %)** достигается с запасом даже на плотном трафике.
 
+## 🚀 Быстрый старт
+
+### Установка CLI (рекомендуется)
+
+```bash
+# Установка из PyPI
+pip install squeeze-gateway
+
+# Или из исходников
+git clone https://github.com/kirill-skoch/squeeze-gateway.git
+cd squeeze-gateway
+pip install -e .
+```
+
+### Первый запуск
+
+```bash
+# 1. Инициализация и настройка
+sqz install
+
+# 2. Установка API ключа Gemini
+sqz config set api_key YOUR_GEMINI_API_KEY
+
+# 3. Запуск шлюза
+sqz start
+
+# 4. Интерактивный чат (в новом терминале)
+sqz chat
+```
+
+### Альтернатива: ручной запуск сервера
+
+```bash
+# Установка зависимостей
+pip install -r requirements.txt
+
+# Настройка API ключа
+echo "GEMINI_API_KEY=your_key_here" > .env
+
+# Сборка C++ модуля
+cd core && mkdir build && cd build
+cmake .. && make
+cd ../..
+
+# Запуск сервера
+uvicorn server:app --port 8082
+```
+
+## CLI команды
+
+```bash
+sqz install              # Установка и конфигурация
+sqz start               # Запуск шлюза
+sqz stop                # Остановка шлюза
+sqz status              # Проверка статуса
+sqz chat                # Интерактивный чат
+sqz stats               # Статистика оптимизации
+sqz config set KEY VAL  # Настройка конфигурации
+```
+
+**Интерактивный чат:**
+- `/exit`, `/quit` - Выход
+- `/clear` - Очистить историю
+- `/stats` - Статистика сессии
+- `/mode <auto|cpp|llm|off>` - Изменить режим сжатия
+- `/thinking <auto|low|medium|high|->` - Изменить уровень мышления
+
 ## Как это устроено
 
 ```

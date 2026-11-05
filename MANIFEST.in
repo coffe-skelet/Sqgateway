@@ -1,0 +1,8 @@
+include README.md
+include LICENSE
+include requirements.txt
+recursive-include sqz_cli *.py
+recursive-include web *.html *.css *.js *.svg
+recursive-include docs *.md
+global-exclude __pycache__
+global-exclude *.py[co]
